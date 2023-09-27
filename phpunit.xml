@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="vendor/autoload.php" verbose="true" colors="true" cacheResult="false" defaultTestSuite="All">
+    <testsuites>
+        <testsuite name="All">
+            <directory>./tests/</directory>
+        </testsuite>
+    </testsuites>
+    <php>
+    <env name="MEMCACHE_HOST" value="host.docker.internal:11211"/>
+    <env name="REDIS_HOST" value="host.docker.internal:6379"/>
+    </php>
+</phpunit>

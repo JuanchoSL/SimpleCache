@@ -1,0 +1,46 @@
+{
+    "name": "juanchosl/simplecache",
+    "description": "A small collection of read/write for multiples cache systems",
+    "type": "library",
+    "license": "MIT",
+    "homepage": "https://github.com/JuanchoSL/SimpleCache",
+    "minimum-stability": "stable",
+    "keywords": [
+        "cache",
+        "memcache cache",
+        "memcached cache",
+        "redis cache",
+        "session cache",
+        "file cache",
+        "process cache"
+    ],
+    "authors": [
+        {
+            "name": "Juan Sánchez Lecegui",
+            "email": "JuanchoSL@hotmail.com",
+            "homepage": "https://github.com/JuanchoSL/"
+        }
+    ],
+    "require": {
+        "php": "^7.2 || ^8.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "9.*",
+        "phpstan/phpstan": "1.10.*",
+        "juanchosl/logger": "1.0.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "JuanchoSL\\SimpleCache\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "JuanchoSL\\SimpleCache\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "tests": "vendor/bin/phpunit --configuration phpunit.xml tests",
+        "phpstan": "vendor/bin/phpstan analyse -c phpstan.neon --xdebug"
+    }
+}
