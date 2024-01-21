@@ -1,9 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace JuanchoSL\SimpleCache\Repositories;
 
 use JuanchoSL\SimpleCache\Contracts\SimpleCacheInterface;
-use Exception;
 
 class MemCache implements SimpleCacheInterface
 {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace JuanchoSL\SimpleCache\Repositories;
 
 use JuanchoSL\SimpleCache\Contracts\SimpleCacheInterface;
@@ -11,18 +13,18 @@ class ProcessCache implements SimpleCacheInterface
      * @var array<string, array<string, array<string, mixed>>> $cache
      */
     private static array $cache = [];
-    protected string $hostName = 'session_cache';
+    protected string $host_name = 'session_cache';
 
     public function __construct(string $index)
     {
-        $this->hostName = $index;
-        self::$cache[$this->hostName] = array();
+        $this->host_name = $index;
+        self::$cache[$this->host_name] = array();
     }
 
     public function get(string $key): mixed
     {
-        if (array_key_exists($key, self::$cache[$this->hostName])) {
-            $value = self::$cache[$this->hostName][$key];
+        if (array_key_exists($key, self::$cache[$this->host_name])) {
+            $value = self::$cache[$this->host_name][$key];
             if (isset($value['ttl'], $value['value'])) {
                 if ($value['ttl'] > time()) {
                     return $value['value'];
@@ -39,28 +41,28 @@ class ProcessCache implements SimpleCacheInterface
         if (empty($ttl)) {
             $ttl = 3600 * 24 * 30;
         }
-        self::$cache[$this->hostName][$key] = array('ttl' => time() + $ttl, 'value' => $value);
-        return (isset(self::$cache[$this->hostName][$key]));
+        self::$cache[$this->host_name][$key] = array('ttl' => time() + $ttl, 'value' => $value);
+        return (isset(self::$cache[$this->host_name][$key]));
     }
 
     public function delete(string $key): bool
     {
-        if (isset(self::$cache[$this->hostName]) && array_key_exists($key, self::$cache[$this->hostName])) {
-            unset(self::$cache[$this->hostName][$key]);
+        if (isset(self::$cache[$this->host_name]) && array_key_exists($key, self::$cache[$this->host_name])) {
+            unset(self::$cache[$this->host_name][$key]);
         }
         return true;
     }
 
     public function flush(): bool
     {
-        unset(self::$cache[$this->hostName]);
-        return !array_key_exists($this->hostName, self::$cache);
+        unset(self::$cache[$this->host_name]);
+        return !array_key_exists($this->host_name, self::$cache);
     }
 
     public function replace(string $key, mixed $value): bool
     {
-        if (array_key_exists($key, self::$cache[$this->hostName])) {
-            self::$cache[$this->hostName][$key]['value'] = $value;
+        if (array_key_exists($key, self::$cache[$this->host_name])) {
+            self::$cache[$this->host_name][$key]['value'] = $value;
             return true;
         }
         return false;
@@ -79,12 +81,12 @@ class ProcessCache implements SimpleCacheInterface
      */
     public function getAllKeys(): array
     {
-        return array_keys(self::$cache[$this->hostName]);
+        return array_keys(self::$cache[$this->host_name]);
     }
 
     public function getHost(): string
     {
-        return $this->hostName;
+        return $this->host_name;
     }
     public function increment(string $key, int|float $increment = 1, int $ttl = 0): int|float|false
     {

@@ -2,10 +2,12 @@
 # https://www.kernel.org/pub/software/scm/git/docs/gitattributes.html
 
 # Ignore all test and documentation with "export-ignore".
-/.gitattributes       export-ignore
-/.github              export-ignore
-/.gitignore           export-ignore
-/phpstan.neon         export-ignore
-/phpunit.xml          export-ignore
-/tests                export-ignore
-/composer.lock        export-ignore
+/.gitattributes     export-ignore
+/.github            export-ignore
+/.gitignore         export-ignore
+/phpstan.neon       export-ignore
+/phpunit.xml        export-ignore
+/composer.lock      export-ignore
+/tests              export-ignore
+/var                export-ignore
+/docker-compose.yml export-ignore

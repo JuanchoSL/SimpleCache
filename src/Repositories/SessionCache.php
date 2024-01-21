@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace JuanchoSL\SimpleCache\Repositories;
 
 use JuanchoSL\SimpleCache\Contracts\SimpleCacheInterface;
@@ -7,22 +9,22 @@ use JuanchoSL\SimpleCache\Contracts\SimpleCacheInterface;
 class SessionCache implements SimpleCacheInterface
 {
 
-    protected string $hostName = 'session_cache';
+    protected string $host_name = 'session_cache';
 
     public function __construct(string $index)
     {
-        $this->hostName = $index;
+        $this->host_name = $index;
         if (session_status() != PHP_SESSION_ACTIVE)
             session_start();
-        if (empty($_SESSION) || !array_key_exists($this->hostName, $_SESSION)) {
-            $_SESSION[$this->hostName] = array();
+        if (empty($_SESSION) || !array_key_exists($this->host_name, $_SESSION)) {
+            $_SESSION[$this->host_name] = array();
         }
     }
 
     public function get(string $key): mixed
     {
-        if (array_key_exists($key, $_SESSION[$this->hostName])) {
-            $value = $_SESSION[$this->hostName][$key];
+        if (array_key_exists($key, $_SESSION[$this->host_name])) {
+            $value = $_SESSION[$this->host_name][$key];
             if (isset($value['ttl'], $value['value'])) {
                 if ($value['ttl'] > time()) {
                     return $value['value'];
@@ -39,28 +41,28 @@ class SessionCache implements SimpleCacheInterface
         if (empty($ttl)) {
             $ttl = 3600 * 24 * 30;
         }
-        $_SESSION[$this->hostName][$key] = array('ttl' => time() + $ttl, 'value' => $value);
-        return (isset($_SESSION[$this->hostName][$key]));
+        $_SESSION[$this->host_name][$key] = array('ttl' => time() + $ttl, 'value' => $value);
+        return (isset($_SESSION[$this->host_name][$key]));
     }
 
     public function delete(string $key): bool
     {
-        if (isset($_SESSION[$this->hostName]) && array_key_exists($key, $_SESSION[$this->hostName])) {
-            unset($_SESSION[$this->hostName][$key]);
+        if (isset($_SESSION[$this->host_name]) && array_key_exists($key, $_SESSION[$this->host_name])) {
+            unset($_SESSION[$this->host_name][$key]);
         }
         return true;
     }
 
     public function flush(): bool
     {
-        unset($_SESSION[$this->hostName]);
-        return !array_key_exists($this->hostName, $_SESSION);
+        unset($_SESSION[$this->host_name]);
+        return !array_key_exists($this->host_name, $_SESSION);
     }
 
     public function replace(string $key, mixed $value): bool
     {
-        if (array_key_exists($key, $_SESSION[$this->hostName])) {
-            $_SESSION[$this->hostName][$key]['value'] = $value;
+        if (array_key_exists($key, $_SESSION[$this->host_name])) {
+            $_SESSION[$this->host_name][$key]['value'] = $value;
             return true;
         }
         return false;
@@ -79,12 +81,12 @@ class SessionCache implements SimpleCacheInterface
      */
     public function getAllKeys(): array
     {
-        return array_keys($_SESSION[$this->hostName]);
+        return array_keys($_SESSION[$this->host_name]);
     }
 
     public function getHost(): string
     {
-        return $this->hostName;
+        return $this->host_name;
     }
     public function increment(string $key, int|float $increment = 1, int $ttl = 0): int|float|false
     {

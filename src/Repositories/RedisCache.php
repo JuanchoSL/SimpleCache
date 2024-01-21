@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace JuanchoSL\SimpleCache\Repositories;
 
 use JuanchoSL\SimpleCache\Contracts\SimpleCacheInterface;
@@ -117,7 +119,7 @@ class RedisCache implements SimpleCacheInterface
     public function decrement(string $key, int|float $decrement = 1, int $ttl = 0): int|float|bool
     {
         $value = $this->get($key);
-        if (is_float(abs($decrement)) || is_float(abs($value))) {
+        if (is_float($decrement) || is_float($value) || true) {
             if (!$value) {
                 $decrement *= -1;
                 if ($this->set($key, $decrement, $ttl)) {
