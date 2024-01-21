@@ -1,7 +1,9 @@
 <?php
+
+declare(strict_types=1);
+
 namespace JuanchoSL\SimpleCache\Adapters;
 
-use JuanchoSL\Logger\Debugger;
 use JuanchoSL\SimpleCache\Contracts\SimpleCacheInterface;
 
 class SimpleCacheAdapter
@@ -11,15 +13,14 @@ class SimpleCacheAdapter
     public function __construct(SimpleCacheInterface $cache)
     {
         $this->cache = $cache;
-        Debugger::init(dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR . 'logs');
     }
 
-    public function __call($function, $params)
+    /**
+     * @param string $function
+     * @param array<int,mixed> $params
+     */
+    public function __call(string $function, array $params = []): mixed
     {
-        $time_initial = microtime(true);
-        $result = call_user_func_array([$this->cache, $function], $params);
-        $time_final = microtime(true) - $time_initial;
-        Debugger::info("Time " . get_class($this->cache) . "-{$function}: {$time_final}");
-        return $result;
+        return call_user_func_array([$this->cache, $function], $params);
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace JuanchoSL\SimpleCache\Repositories;
 
 use JuanchoSL\SimpleCache\Contracts\SimpleCacheInterface;
@@ -9,13 +11,13 @@ class FileCache implements SimpleCacheInterface
 
     use SerializeTrait;
 
-    protected string $cacheDir;
+    protected string $cache_dir;
 
     public function __construct(string $host)
     {
-        $this->cacheDir = rtrim($host, DIRECTORY_SEPARATOR);
-        if (!file_exists($this->cacheDir)) {
-            mkdir($this->cacheDir, 0777, true);
+        $this->cache_dir = rtrim($host, DIRECTORY_SEPARATOR);
+        if (!file_exists($this->cache_dir)) {
+            mkdir($this->cache_dir, 0777, true);
         }
     }
 
@@ -24,9 +26,9 @@ class FileCache implements SimpleCacheInterface
      */
     protected function getContents(string $key): array|bool
     {
-        $cacheFile = $this->cacheDir . DIRECTORY_SEPARATOR . $key;
-        if (file_exists($cacheFile)) {
-            $data = file_get_contents($cacheFile);
+        $cache_file = $this->cache_dir . DIRECTORY_SEPARATOR . $key;
+        if (file_exists($cache_file)) {
+            $data = file_get_contents($cache_file);
             if (!empty($data)) {
                 $data_unserialized = (array) unserialize($data);
                 $response = [
@@ -48,14 +50,14 @@ class FileCache implements SimpleCacheInterface
      */
     protected function putContents(string $key, array $data): bool
     {
-        $cacheFile = $this->cacheDir . DIRECTORY_SEPARATOR . $key;
-        return file_put_contents($cacheFile, serialize($data), LOCK_EX) !== false;
+        $cache_file = $this->cache_dir . DIRECTORY_SEPARATOR . $key;
+        return file_put_contents($cache_file, serialize($data), LOCK_EX) !== false;
     }
 
     public function get(string $key): mixed
     {
-        $cacheFile = $this->cacheDir . DIRECTORY_SEPARATOR . $key;
-        if (file_exists($cacheFile)) {
+        $cache_file = $this->cache_dir . DIRECTORY_SEPARATOR . $key;
+        if (file_exists($cache_file)) {
             $data = $this->getContents($key);
             if (is_array($data) && $data['ttl'] > time()) {
                 return $data['data'];
@@ -79,8 +81,8 @@ class FileCache implements SimpleCacheInterface
 
     public function delete(string $key): bool
     {
-        $cacheFile = $this->cacheDir . DIRECTORY_SEPARATOR . $key;
-        return unlink($cacheFile);
+        $cache_file = $this->cache_dir . DIRECTORY_SEPARATOR . $key;
+        return unlink($cache_file);
     }
 
     public function flush(): bool
@@ -120,7 +122,7 @@ class FileCache implements SimpleCacheInterface
     public function getAllKeys(): array
     {
         $response = [];
-        $files = glob($this->cacheDir . "/*");
+        $files = glob($this->cache_dir . "/*");
         if (!empty($files)) {
             foreach ($files as $file) {
                 if (is_file($file)) {
@@ -133,7 +135,7 @@ class FileCache implements SimpleCacheInterface
 
     public function getHost(): string
     {
-        return $this->cacheDir;
+        return $this->cache_dir;
     }
     public function increment(string $key, int|float $increment = 1, int $ttl = 0): int|float|false
     {
