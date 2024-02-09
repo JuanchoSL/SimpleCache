@@ -14,7 +14,7 @@ interface SimpleCacheInterface
      * @param int $ttl The number of seconds for save the value
      * @return bool Result of operation, true if value is saved, false otherwise
      */
-    public function set(string $key, mixed $value, int $ttl): bool;
+    public function set(string $key, mixed $value, ?int $ttl): bool;
 
     /**
      * Get the value from cache assigned to the key passed

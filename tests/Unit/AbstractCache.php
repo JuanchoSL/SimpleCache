@@ -1,33 +1,21 @@
 <?php
 
-namespace JuanchoSL\SimpleCache\Tests;
+namespace JuanchoSL\SimpleCache\Tests\Unit;
 
-use JuanchoSL\SimpleCache\Contracts\SimpleCacheInterface;
-use JuanchoSL\SimpleCache\Repositories\RedisCache;
 use PHPUnit\Framework\TestCase;
-use JuanchoSL\SimpleCache\Adapters\SimpleCacheAdapter;
 
-class RedisCacheTest extends TestCase
+abstract class AbstractCache extends TestCase
 {
-    private $cache;
+    protected $cache;
 
     private $value_plain = 'value';
     private $value_array = ['value'];
 
-    private $ttl = 10;
+    private $ttl = 5;
 
-    public function setUp(): void
-    {
-        $this->cache = new SimpleCacheAdapter(new RedisCache($_ENV['REDIS_HOST']));
-    }
     public function tearDown(): void
     {
         $this->cache->flush();
-    }
-    public function testLoad()
-    {
-        $this->assertInstanceOf(SimpleCacheAdapter::class, $this->cache);
-        //$this->assertInstanceOf(SimpleCacheInterface::class, $this->cache);
     }
     public function testSet()
     {

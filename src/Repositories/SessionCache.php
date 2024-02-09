@@ -8,13 +8,13 @@ use JuanchoSL\SimpleCache\Contracts\SimpleCacheInterface;
 
 class SessionCache implements SimpleCacheInterface
 {
-
+    use CommonTrait;
     protected string $host_name = 'session_cache';
 
     public function __construct(string $index)
     {
         $this->host_name = $index;
-        if (session_status() != PHP_SESSION_ACTIVE)
+        if (session_status() !== PHP_SESSION_ACTIVE && !headers_sent())
             session_start();
         if (empty($_SESSION) || !array_key_exists($this->host_name, $_SESSION)) {
             $_SESSION[$this->host_name] = array();
@@ -36,12 +36,9 @@ class SessionCache implements SimpleCacheInterface
         return false;
     }
 
-    public function set(string $key, mixed $value, int $ttl): bool
+    public function set(string $key, mixed $value, ?int $ttl): bool
     {
-        if (empty($ttl)) {
-            $ttl = 3600 * 24 * 30;
-        }
-        $_SESSION[$this->host_name][$key] = array('ttl' => time() + $ttl, 'value' => $value);
+        $_SESSION[$this->host_name][$key] = array('ttl' => time() + $this->maxTtl($ttl), 'value' => $value);
         return (isset($_SESSION[$this->host_name][$key]));
     }
 

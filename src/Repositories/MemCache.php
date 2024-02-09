@@ -8,7 +8,7 @@ use JuanchoSL\SimpleCache\Contracts\SimpleCacheInterface;
 
 class MemCache implements SimpleCacheInterface
 {
-
+    use CommonTrait;
     private \Memcache $server;
     private string $host;
     private int $port;
@@ -28,9 +28,9 @@ class MemCache implements SimpleCacheInterface
         $this->server->connect($this->host, $this->port);
     }
 
-    public function set(string $key, mixed $value, int $ttl): bool
+    public function set(string $key, mixed $value, ?int $ttl): bool
     {
-        return $this->server->set($key, $value, MEMCACHE_COMPRESSED, $ttl);
+        return $this->server->set($key, $value, MEMCACHE_COMPRESSED, $this->maxTtl($ttl));
     }
 
     public function touch(string $key, int $ttl): bool
@@ -99,7 +99,7 @@ class MemCache implements SimpleCacheInterface
             }
         } else {
             $new_value = $value + $increment;
-            if ($this->replace($key, $new_value)){
+            if ($this->replace($key, $new_value)) {
                 return $new_value;
             }
         }

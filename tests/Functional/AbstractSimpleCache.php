@@ -1,49 +1,53 @@
 <?php
 
-namespace JuanchoSL\SimpleCache\Tests;
+namespace JuanchoSL\SimpleCache\Tests\Functional;
 
-use JuanchoSL\SimpleCache\Contracts\SimpleCacheInterface;
-use JuanchoSL\SimpleCache\Repositories\ProcessCache;
+use DateInterval;
+use Psr\SimpleCache\CacheInterface;
 use PHPUnit\Framework\TestCase;
-use JuanchoSL\SimpleCache\Adapters\SimpleCacheAdapter;
 
-class ProcessCacheTest extends TestCase
+session_start();
+
+class AbstractSimpleCache extends TestCase
 {
-    private $cache;
+    protected $cache;
 
     private $value_plain = 'value';
     private $value_array = ['value'];
 
-    private $ttl = 10;
+    private $ttl = 5;
 
-    public function setUp(): void
-    {
-        $this->cache = new SimpleCacheAdapter(new ProcessCache('test_cache'));
-    }
     public function tearDown(): void
     {
         $this->cache->flush();
     }
+
     public function testLoad()
     {
-        $this->assertInstanceOf(SimpleCacheAdapter::class, $this->cache);
-       // $this->assertInstanceOf(SimpleCacheInterface::class, $this->cache);
+        $this->assertInstanceOf(CacheInterface::class, $this->cache);
+        // $this->assertInstanceOf(SimpleCacheInterface::class, $this->cache);
     }
     public function testSet()
     {
-        $result = $this->cache->set('key', $this->value_plain, $this->ttl);
+        $interval = DateInterval::createFromDateString("+{$this->ttl} seconds");
+        $result = $this->cache->set('key', $this->value_plain, $interval);
+        //$result = $this->cache->set('key', $this->value_plain, $this->ttl);
         $this->assertTrue($result);
     }
     public function testGetOk()
     {
-        $result = $this->cache->set('key', $this->value_plain, $this->ttl);
+        $interval = DateInterval::createFromDateString("+{$this->ttl} seconds");
+        $result = $this->cache->set('key', $this->value_plain, $interval);
+        //$result = $this->cache->set('key', $this->value_plain, $this->ttl);
         $this->assertTrue($result);
         $read_ok = $this->cache->get('key');
         $this->assertEquals($this->value_plain, $read_ok);
     }
     public function testGetKo()
     {
-        $result = $this->cache->set('key', $this->value_plain, $this->ttl);
+        $interval = DateInterval::createFromDateString("+{$this->ttl} seconds");
+        $result = $this->cache->set('key', $this->value_plain, $interval);
+        //$result = $this->cache->set('key', $this->value_plain, $this->ttl);
         $this->assertTrue($result);
         sleep($this->ttl + 1);
         $read_ko = $this->cache->get('key');

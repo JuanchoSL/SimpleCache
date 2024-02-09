@@ -8,7 +8,7 @@ use JuanchoSL\SimpleCache\Contracts\SimpleCacheInterface;
 
 class MemCached implements SimpleCacheInterface
 {
-
+    use CommonTrait;
     private \Memcached $server;
     private string $host;
     private int $port;
@@ -29,9 +29,9 @@ class MemCached implements SimpleCacheInterface
         $this->server->setOption(\Memcached::OPT_BINARY_PROTOCOL, false);
     }
 
-    public function set(string $key, mixed $value, int $ttl): bool
+    public function set(string $key, mixed $value, ?int $ttl): bool
     {
-        return $this->server->set($key, $value, $ttl);
+        return $this->server->set($key, $value, $this->maxTtl($ttl));
     }
 
     public function touch(string $key, int $ttl): bool
@@ -70,15 +70,15 @@ class MemCached implements SimpleCacheInterface
     public function getAllKeys(): array
     {
         /*
-        $return = $this->server->getAllKeys();
-        if (empty($return)) {
-            $return = [];
-        }
-        return $return;
-        
-        print_r($this->server->getVersion());
-        exit;
-        */
+                $return = $this->server->getAllKeys();
+                if (empty($return)) {
+                    $return = [];
+                }
+                return $return;
+                        
+                print_r($this->server->getVersion());
+                exit;
+                */
         $keysFound = [];
         $slabs = $this->server->getStats();
         //$items = $this->server->getStats('items');
@@ -125,7 +125,7 @@ class MemCached implements SimpleCacheInterface
             }
         } else {
             $new_value = $value - $decrement;
-            if ($this->replace($key, $new_value)){
+            if ($this->replace($key, $new_value)) {
                 return $new_value;
             }
         }

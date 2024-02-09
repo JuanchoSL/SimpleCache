@@ -9,7 +9,7 @@ use JuanchoSL\SimpleCache\Contracts\SimpleCacheInterface;
 class RedisCache implements SimpleCacheInterface
 {
 
-    use SerializeTrait;
+    use SerializeTrait, CommonTrait;
 
     private \Redis $server;
     private string $host;
@@ -43,12 +43,12 @@ class RedisCache implements SimpleCacheInterface
         return false;
     }
 
-    public function set(string $key, mixed $value, int $ttl): bool
+    public function set(string $key, mixed $value, ?int $ttl): bool
     {
         if (is_object($value) || is_array($value)) {
             $value = serialize($value);
         }
-        return $this->server->set($key, $value, $ttl);
+        return $this->server->set($key, $value, $this->maxTtl($ttl));
     }
 
     public function delete(string $key): bool

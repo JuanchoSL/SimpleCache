@@ -8,7 +8,7 @@ use JuanchoSL\SimpleCache\Contracts\SimpleCacheInterface;
 
 class ProcessCache implements SimpleCacheInterface
 {
-
+    use CommonTrait;
     /**
      * @var array<string, array<string, array<string, mixed>>> $cache
      */
@@ -36,12 +36,9 @@ class ProcessCache implements SimpleCacheInterface
         return false;
     }
 
-    public function set(string $key, mixed $value, int $ttl): bool
+    public function set(string $key, mixed $value, ?int $ttl): bool
     {
-        if (empty($ttl)) {
-            $ttl = 3600 * 24 * 30;
-        }
-        self::$cache[$this->host_name][$key] = array('ttl' => time() + $ttl, 'value' => $value);
+        self::$cache[$this->host_name][$key] = array('ttl' => time() + $this->maxTtl($ttl), 'value' => $value);
         return (isset(self::$cache[$this->host_name][$key]));
     }
 
@@ -112,7 +109,7 @@ class ProcessCache implements SimpleCacheInterface
             }
         } else {
             $new_value = $value - $decrement;
-            if ($this->replace($key, $new_value)){
+            if ($this->replace($key, $new_value)) {
                 return $new_value;
             }
         }
