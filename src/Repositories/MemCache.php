@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace JuanchoSL\SimpleCache\Repositories;
 
-use JuanchoSL\SimpleCache\Contracts\SimpleCacheInterface;
-
-class MemCache implements SimpleCacheInterface
+class MemCache extends AbstractCache
 {
     use CommonTrait;
     private \Memcache $server;
@@ -28,12 +26,12 @@ class MemCache implements SimpleCacheInterface
         $this->server->connect($this->host, $this->port);
     }
 
-    public function set(string $key, mixed $value, ?int $ttl): bool
+    public function set(string $key, mixed $value, \DateInterval|null|int $ttl = null): bool
     {
         return $this->server->set($key, $value, MEMCACHE_COMPRESSED, $this->maxTtl($ttl));
     }
 
-    public function touch(string $key, int $ttl): bool
+    public function touch(string $key, \DateInterval|null|int $ttl): bool
     {
         if (($value = $this->get($key)) !== false) {
             return $this->set($key, $value, $ttl);
@@ -51,14 +49,18 @@ class MemCache implements SimpleCacheInterface
         return $this->server->delete($key);
     }
 
-    public function flush(): bool
+    public function clear(): bool
     {
         return $this->server->flush();
     }
 
-    public function get(string $key): mixed
+    public function get(string $key, mixed $default = null): mixed
     {
-        return $this->server->get($key);
+        $result = $this->server->get($key);
+        if ($result === false) {
+            $result = $default;
+        }
+        return $result;
     }
 
     public function replace(string $key, mixed $value): bool
@@ -90,7 +92,7 @@ class MemCache implements SimpleCacheInterface
         return $keysFound;
     }
 
-    public function increment(string $key, int|float $increment = 1, int $ttl = 0): int|float|false
+    public function increment(string $key, int|float $increment = 1, \DateInterval|null|int $ttl = null): int|float|false
     {
         $value = $this->get($key);
         if (!$value) {
@@ -105,7 +107,7 @@ class MemCache implements SimpleCacheInterface
         }
         return false;
     }
-    public function decrement(string $key, int|float $decrement = 1, int $ttl = 0): int|float|false
+    public function decrement(string $key, int|float $decrement = 1, \DateInterval|null|int $ttl = null): int|float|false
     {
         $value = $this->get($key);
         if (!$value) {

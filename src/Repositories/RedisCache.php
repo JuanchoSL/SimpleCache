@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace JuanchoSL\SimpleCache\Repositories;
 
-use JuanchoSL\SimpleCache\Contracts\SimpleCacheInterface;
-
-class RedisCache implements SimpleCacheInterface
+class RedisCache extends AbstractCache
 {
 
     use SerializeTrait, CommonTrait;
@@ -31,7 +29,7 @@ class RedisCache implements SimpleCacheInterface
         //$this->server = new \Redis(['host' => $this->host, 'port' => (int) $this->port]);
     }
 
-    public function get(string $key): mixed
+    public function get(string $key, mixed $default = null): mixed
     {
         if ($this->server->exists($key)) {
             $value = $this->server->get($key);
@@ -40,10 +38,10 @@ class RedisCache implements SimpleCacheInterface
             }
             return $value;
         }
-        return false;
+        return $default;
     }
 
-    public function set(string $key, mixed $value, ?int $ttl): bool
+    public function set(string $key, mixed $value, \DateInterval|null|int $ttl = null): bool
     {
         if (is_object($value) || is_array($value)) {
             $value = serialize($value);
@@ -63,7 +61,7 @@ class RedisCache implements SimpleCacheInterface
         return (isset($result) && $result !== false);
     }
 
-    public function flush(): bool
+    public function clear(): bool
     {
         return $this->server->flushDB();
     }
@@ -77,12 +75,12 @@ class RedisCache implements SimpleCacheInterface
         return ($old !== $value);
     }
 
-    public function touch(string $key, int $ttl): bool
+    public function touch(string $key, \DateInterval|null|int $ttl): bool
     {
         if (method_exists($this->server, 'expire')) {
-            return $this->server->expire($key, $ttl);
+            return $this->server->expire($key, $this->maxTtl($ttl));
         } elseif (method_exists($this->server, 'setTimeOut')) {
-            return $this->server->setTimeOut($key, $ttl);
+            return $this->server->setTimeOut($key, $this->maxTtl($ttl));
         }
         return false;
     }
@@ -100,7 +98,7 @@ class RedisCache implements SimpleCacheInterface
         return $this->server->keys('*');
     }
 
-    public function increment(string $key, int|float $increment = 1, int $ttl = 0): int|float|bool
+    public function increment(string $key, int|float $increment = 1, \DateInterval|null|int $ttl = null): int|float|bool
     {
         return (is_float($increment)) ? $this->server->incrByFloat($key, $increment) : $this->server->incrBy($key, $increment);
         /*
@@ -116,7 +114,7 @@ class RedisCache implements SimpleCacheInterface
         }
         */
     }
-    public function decrement(string $key, int|float $decrement = 1, int $ttl = 0): int|float|bool
+    public function decrement(string $key, int|float $decrement = 1, \DateInterval|null|int $ttl = null): int|float|bool
     {
         $value = $this->get($key);
         if (is_float($decrement) || is_float($value) || true) {
@@ -132,7 +130,7 @@ class RedisCache implements SimpleCacheInterface
                 }
             }
         } else {
-            return $this->server->decrBy($key, $decrement);
+            //return $this->server->decrBy($key, $decrement);
         }
         return false;
     }

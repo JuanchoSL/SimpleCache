@@ -15,7 +15,7 @@ abstract class AbstractCache extends TestCase
 
     public function tearDown(): void
     {
-        $this->cache->flush();
+        $this->cache->clear();
     }
     public function testSet()
     {
@@ -35,7 +35,7 @@ abstract class AbstractCache extends TestCase
         $this->assertTrue($result);
         sleep($this->ttl + 1);
         $read_ko = $this->cache->get('key');
-        $this->assertFalse($read_ko);
+        $this->assertNull($read_ko);
     }
     public function testTouch()
     {
@@ -70,7 +70,7 @@ abstract class AbstractCache extends TestCase
         $result = $this->cache->delete('key');
         $this->assertTrue($result);
         $read_ko = $this->cache->get('key');
-        $this->assertFalse($read_ko);
+        $this->assertNull($read_ko);
     }
     public function testAllKeys()
     {
@@ -142,5 +142,27 @@ abstract class AbstractCache extends TestCase
         $this->assertEquals(-4.5, $initial);
         $initial = $this->cache->decrement('key_decrement_float', 1, $this->ttl);
         $this->assertEquals(-5.5, $initial);
+    }
+
+    public function testSetMultiple()
+    {
+        $this->assertTrue($this->cache->setMultiple(["a" => "aa", "b" => "bb", "c" => "cc"], \DateInterval::createFromDateString("10 seconds")));
+    }
+
+    public function testGetMultiple()
+    {
+        $this->testSetMultiple();
+        $keys = ["a", "b", "c"];
+        $results = $this->cache->getMultiple($keys);
+        foreach ($keys as $key) {
+            $this->assertEquals($key . $key, $results[$key]);
+        }
+    }
+
+    public function testDeleteMultiple()
+    {
+        $this->testSetMultiple();
+        $keys = ["a", "b", "c"];
+        $this->assertTrue($this->cache->deleteMultiple($keys));
     }
 }

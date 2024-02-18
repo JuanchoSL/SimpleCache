@@ -20,7 +20,7 @@ class MemcacheCacheTest extends TestCase
     }
     public function tearDown(): void
     {
-        $this->cache->flush();
+        $this->cache->clear();
     }
     public function testLoad()
     {
@@ -45,7 +45,7 @@ class MemcacheCacheTest extends TestCase
         $this->assertTrue($result);
         sleep($this->ttl + 1);
         $read_ko = $this->cache->get('key_memcache');
-        $this->assertFalse($read_ko);
+        $this->assertNull($read_ko);
     }
     public function testTouch()
     {
@@ -80,7 +80,7 @@ class MemcacheCacheTest extends TestCase
         $result = $this->cache->delete('key_memcache');
         $this->assertTrue($result);
         $read_ko = $this->cache->get('key_memcache');
-        $this->assertFalse($read_ko);
+        $this->assertNull($read_ko);
     }
     /*public function testAllKeys()
     {

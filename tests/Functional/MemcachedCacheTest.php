@@ -3,18 +3,14 @@
 namespace JuanchoSL\SimpleCache\Tests\Functional;
 
 use JuanchoSL\SimpleCache\Repositories\MemCached;
-use JuanchoSL\SimpleCache\Adapters\SimpleCacheAdapter;
+use JuanchoSL\SimpleCache\Adapters\PsrSimpleCacheAdapter;
 
 class MemcachedCacheTest extends AbstractSimpleCache
 {
 
     public function setUp(): void
     {
-        $this->cache = new SimpleCacheAdapter(new MemCached($_ENV['MEMCACHE_HOST']));
+        $this->cache = new PsrSimpleCacheAdapter(new MemCached($_ENV['MEMCACHE_HOST']));
     }
 
-    public function testAllKeys()
-    {
-        $this->assertTrue(true);
-    }
 }
