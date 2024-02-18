@@ -107,7 +107,7 @@ class FileCache extends AbstractCache
 
     public function touch(string $key, \DateInterval|null|int $ttl): bool
     {
-        if (($value = $this->get($key)) !== false) {
+        if (($value = $this->get($key)) !== null) {
             return $this->set($key, $value, $ttl);
         }
         return false;
