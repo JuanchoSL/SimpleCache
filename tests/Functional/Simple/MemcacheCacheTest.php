@@ -1,8 +1,9 @@
 <?php
 
-namespace JuanchoSL\SimpleCache\Tests\Functional;
+namespace JuanchoSL\SimpleCache\Tests\Functional\Simple;
 
-use JuanchoSL\SimpleCache\Repositories\MemCache;
+use JuanchoSL\SimpleCache\Tests\Common\CacheEnum;
+use JuanchoSL\SimpleCache\Tests\Common\CacheFactory;
 use PHPUnit\Framework\TestCase;
 use JuanchoSL\SimpleCache\Adapters\PsrSimpleCacheAdapter;
 use Psr\SimpleCache\CacheInterface;
@@ -18,7 +19,7 @@ class MemcacheCacheTest extends TestCase
 
     public function setUp(): void
     {
-        $this->cache = new PsrSimpleCacheAdapter(new MemCache($_ENV['MEMCACHE_HOST']));
+        $this->cache = new PsrSimpleCacheAdapter(CacheFactory::getInstance(CacheEnum::MEMCACHE));
     }
     public function tearDown(): void
     {

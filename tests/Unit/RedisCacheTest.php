@@ -3,13 +3,15 @@
 namespace JuanchoSL\SimpleCache\Tests\Unit;
 
 use JuanchoSL\SimpleCache\Repositories\RedisCache;
+use JuanchoSL\SimpleCache\Tests\Common\CacheEnum;
+use JuanchoSL\SimpleCache\Tests\Common\CacheFactory;
 
 class RedisCacheTest extends AbstractCache
 {
 
     public function setUp(): void
     {
-        $this->cache = new RedisCache($_ENV['REDIS_HOST']);
+        $this->cache = CacheFactory::getInstance(CacheEnum::REDIS);
     }
 
     public function testLoad()

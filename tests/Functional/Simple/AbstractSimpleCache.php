@@ -1,14 +1,15 @@
 <?php
 
-namespace JuanchoSL\SimpleCache\Tests\Functional;
+namespace JuanchoSL\SimpleCache\Tests\Functional\Simple;
 
 use DateInterval;
+use JuanchoSL\SimpleCache\Adapters\PsrSimpleCacheAdapter;
 use Psr\SimpleCache\CacheInterface;
 use PHPUnit\Framework\TestCase;
 
 session_start();
 
-class AbstractSimpleCache extends TestCase
+abstract class AbstractSimpleCache extends TestCase
 {
     protected $cache;
 
@@ -17,6 +18,12 @@ class AbstractSimpleCache extends TestCase
 
     private $ttl = 5;
 
+    abstract public function getCacheType();
+
+    public function setUp(): void
+    {
+        $this->cache = new PsrSimpleCacheAdapter(static::getCacheType());
+    }
     public function tearDown(): void
     {
         $this->cache->clear();
