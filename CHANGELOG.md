@@ -1,6 +1,24 @@
 # Change Simple Cache
 
 
+## [1.0.2] - 2024-03-05
+
+### Added
+
+- Create adapter PsrSimpleCacheAdapter for compatibility with PSR-16
+- ALl libraries are compatibles with PSR-16 Simple CacheInterface
+- Tests for every cache type
+- Tests for PSR-16 SimpleCache using adapter
+
+### Changed
+
+- nullable ttl for setter
+
+### Fixed
+
+- minor fix for session start
+
+
 ## [1.0.1] - 2024-01-21
 
 ### Added
