@@ -1,33 +1,21 @@
 <?php
 
-namespace JuanchoSL\SimpleCache\Tests;
+namespace JuanchoSL\SimpleCache\Tests\Unit;
 
-use JuanchoSL\SimpleCache\Contracts\SimpleCacheInterface;
-use JuanchoSL\SimpleCache\Repositories\ProcessCache;
 use PHPUnit\Framework\TestCase;
-use JuanchoSL\SimpleCache\Adapters\SimpleCacheAdapter;
 
-class ProcessCacheTest extends TestCase
+abstract class AbstractCache extends TestCase
 {
-    private $cache;
+    protected $cache;
 
     private $value_plain = 'value';
     private $value_array = ['value'];
 
-    private $ttl = 10;
+    private $ttl = 5;
 
-    public function setUp(): void
-    {
-        $this->cache = new SimpleCacheAdapter(new ProcessCache('test_cache'));
-    }
     public function tearDown(): void
     {
-        $this->cache->flush();
-    }
-    public function testLoad()
-    {
-        $this->assertInstanceOf(SimpleCacheAdapter::class, $this->cache);
-       // $this->assertInstanceOf(SimpleCacheInterface::class, $this->cache);
+        $this->cache->clear();
     }
     public function testSet()
     {
@@ -47,7 +35,7 @@ class ProcessCacheTest extends TestCase
         $this->assertTrue($result);
         sleep($this->ttl + 1);
         $read_ko = $this->cache->get('key');
-        $this->assertFalse($read_ko);
+        $this->assertNull($read_ko);
     }
     public function testTouch()
     {
@@ -82,7 +70,7 @@ class ProcessCacheTest extends TestCase
         $result = $this->cache->delete('key');
         $this->assertTrue($result);
         $read_ko = $this->cache->get('key');
-        $this->assertFalse($read_ko);
+        $this->assertNull($read_ko);
     }
     public function testAllKeys()
     {
@@ -154,5 +142,27 @@ class ProcessCacheTest extends TestCase
         $this->assertEquals(-4.5, $initial);
         $initial = $this->cache->decrement('key_decrement_float', 1, $this->ttl);
         $this->assertEquals(-5.5, $initial);
+    }
+
+    public function testSetMultiple()
+    {
+        $this->assertTrue($this->cache->setMultiple(["a" => "aa", "b" => "bb", "c" => "cc"], \DateInterval::createFromDateString("10 seconds")));
+    }
+
+    public function testGetMultiple()
+    {
+        $this->testSetMultiple();
+        $keys = ["a", "b", "c"];
+        $results = $this->cache->getMultiple($keys);
+        foreach ($keys as $key) {
+            $this->assertEquals($key . $key, $results[$key]);
+        }
+    }
+
+    public function testDeleteMultiple()
+    {
+        $this->testSetMultiple();
+        $keys = ["a", "b", "c"];
+        $this->assertTrue($this->cache->deleteMultiple($keys));
     }
 }

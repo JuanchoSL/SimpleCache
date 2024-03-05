@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace JuanchoSL\SimpleCache\Repositories;
 
-use JuanchoSL\SimpleCache\Contracts\SimpleCacheInterface;
-
-class ProcessCache implements SimpleCacheInterface
+class ProcessCache extends AbstractCache
 {
-
+    use CommonTrait;
     /**
      * @var array<string, array<string, array<string, mixed>>> $cache
      */
@@ -21,7 +19,7 @@ class ProcessCache implements SimpleCacheInterface
         self::$cache[$this->host_name] = array();
     }
 
-    public function get(string $key): mixed
+    public function get(string $key, mixed $default = null): mixed
     {
         if (array_key_exists($key, self::$cache[$this->host_name])) {
             $value = self::$cache[$this->host_name][$key];
@@ -33,15 +31,12 @@ class ProcessCache implements SimpleCacheInterface
                 }
             }
         }
-        return false;
+        return $default;
     }
 
-    public function set(string $key, mixed $value, int $ttl): bool
+    public function set(string $key, mixed $value, \DateInterval|null|int $ttl = null): bool
     {
-        if (empty($ttl)) {
-            $ttl = 3600 * 24 * 30;
-        }
-        self::$cache[$this->host_name][$key] = array('ttl' => time() + $ttl, 'value' => $value);
+        self::$cache[$this->host_name][$key] = array('ttl' => time() + $this->maxTtl($ttl), 'value' => $value);
         return (isset(self::$cache[$this->host_name][$key]));
     }
 
@@ -53,7 +48,7 @@ class ProcessCache implements SimpleCacheInterface
         return true;
     }
 
-    public function flush(): bool
+    public function clear(): bool
     {
         unset(self::$cache[$this->host_name]);
         return !array_key_exists($this->host_name, self::$cache);
@@ -68,9 +63,9 @@ class ProcessCache implements SimpleCacheInterface
         return false;
     }
 
-    public function touch(string $key, int $ttl): bool
+    public function touch(string $key, \DateInterval|null|int $ttl): bool
     {
-        if (($value = $this->get($key)) !== false) {
+        if (($value = $this->get($key)) !== null) {
             return $this->set($key, $value, $ttl);
         }
         return false;
@@ -88,7 +83,7 @@ class ProcessCache implements SimpleCacheInterface
     {
         return $this->host_name;
     }
-    public function increment(string $key, int|float $increment = 1, int $ttl = 0): int|float|false
+    public function increment(string $key, int|float $increment = 1, \DateInterval|null|int $ttl = null): int|float|false
     {
         $value = $this->get($key);
         if (!$value) {
@@ -102,7 +97,7 @@ class ProcessCache implements SimpleCacheInterface
         }
         return false;
     }
-    public function decrement(string $key, int|float $decrement = 1, int $ttl = 0): int|float|false
+    public function decrement(string $key, int|float $decrement = 1, \DateInterval|null|int $ttl = null): int|float|false
     {
         $value = $this->get($key);
         if (!$value) {
@@ -112,7 +107,7 @@ class ProcessCache implements SimpleCacheInterface
             }
         } else {
             $new_value = $value - $decrement;
-            if ($this->replace($key, $new_value)){
+            if ($this->replace($key, $new_value)) {
                 return $new_value;
             }
         }

@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace JuanchoSL\SimpleCache\Repositories;
 
-use JuanchoSL\SimpleCache\Contracts\SimpleCacheInterface;
-
-class MemCached implements SimpleCacheInterface
+class MemCached extends AbstractCache
 {
-
+    use CommonTrait;
     private \Memcached $server;
     private string $host;
     private int $port;
@@ -29,14 +27,14 @@ class MemCached implements SimpleCacheInterface
         $this->server->setOption(\Memcached::OPT_BINARY_PROTOCOL, false);
     }
 
-    public function set(string $key, mixed $value, int $ttl): bool
+    public function set(string $key, mixed $value, \DateInterval|null|int $ttl = null): bool
     {
-        return $this->server->set($key, $value, $ttl);
+        return $this->server->set($key, $value, $this->maxTtl($ttl));
     }
 
-    public function touch(string $key, int $ttl): bool
+    public function touch(string $key, \DateInterval|null|int $ttl): bool
     {
-        return $this->server->touch($key, $ttl);
+        return $this->server->touch($key, $this->maxTtl($ttl));
     }
 
     public function getHost(): string
@@ -49,14 +47,18 @@ class MemCached implements SimpleCacheInterface
         return $this->server->delete($key);
     }
 
-    public function flush(): bool
+    public function clear(): bool
     {
         return $this->server->flush();
     }
 
-    public function get(string $key): mixed
+    public function get(string $key, mixed $default = null): mixed
     {
-        return $this->server->get($key);
+        $result = $this->server->get($key);
+        if ($this->server->getResultCode() == \Memcached::RES_NOTFOUND) {
+            $result = $default;
+        }
+        return $result;
     }
 
     public function replace(string $key, mixed $value): bool
@@ -70,15 +72,15 @@ class MemCached implements SimpleCacheInterface
     public function getAllKeys(): array
     {
         /*
-        $return = $this->server->getAllKeys();
-        if (empty($return)) {
-            $return = [];
-        }
-        return $return;
-        
-        print_r($this->server->getVersion());
-        exit;
-        */
+                $return = $this->server->getAllKeys();
+                if (empty($return)) {
+                    $return = [];
+                }
+                return $return;
+                        
+                print_r($this->server->getVersion());
+                exit;
+                */
         $keysFound = [];
         $slabs = $this->server->getStats();
         //$items = $this->server->getStats('items');
@@ -101,7 +103,7 @@ class MemCached implements SimpleCacheInterface
                 return $this->server->fetchAll();
                 */
     }
-    public function increment(string $key, int|float $increment = 1, int $ttl = 0): int|float|false
+    public function increment(string $key, int|float $increment = 1, \DateInterval|null|int $ttl = null): int|float|false
     {
         $value = $this->get($key);
         if (!$value) {
@@ -115,7 +117,7 @@ class MemCached implements SimpleCacheInterface
         }
         return false;
     }
-    public function decrement(string $key, int|float $decrement = 1, int $ttl = 0): int|float|false
+    public function decrement(string $key, int|float $decrement = 1, \DateInterval|null|int $ttl = null): int|float|false
     {
         $value = $this->get($key);
         if (!$value) {
@@ -125,7 +127,7 @@ class MemCached implements SimpleCacheInterface
             }
         } else {
             $new_value = $value - $decrement;
-            if ($this->replace($key, $new_value)){
+            if ($this->replace($key, $new_value)) {
                 return $new_value;
             }
         }
@@ -134,5 +136,37 @@ class MemCached implements SimpleCacheInterface
     public function __destruct()
     {
         $this->server->quit();
+    }
+
+    public function setMultiple(iterable $values, \DateInterval|null|int $ttl = null): bool
+    {
+        return $this->server->setMulti((array) $values, $this->maxTtl($ttl));
+    }
+
+    /**
+     * @param iterable<int, string> $keys
+     */
+    public function getMultiple(iterable $keys, mixed $default = null): iterable
+    {
+        $response = [];
+        $results = $this->server->getMulti((array) $keys);
+        if (is_array($results)) {
+            foreach ($results as $key => $result) {
+                $response[$key] = empty($result) ? $default : $result;
+            }
+        }
+        return $response;
+    }
+
+    public function deleteMultiple(iterable $keys): bool
+    {
+        $results = $this->server->deleteMulti((array) $keys);
+        $response = true;
+        foreach ($results as $result) {
+            if ($result !== true) {
+                $response = false;
+            }
+        }
+        return $response;
     }
 }

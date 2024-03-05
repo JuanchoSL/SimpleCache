@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace JuanchoSL\SimpleCache\Repositories;
 
-use JuanchoSL\SimpleCache\Contracts\SimpleCacheInterface;
-
-class FileCache implements SimpleCacheInterface
+class FileCache extends AbstractCache
 {
 
-    use SerializeTrait;
+    use SerializeTrait, CommonTrait;
 
     protected string $cache_dir;
 
@@ -31,14 +29,16 @@ class FileCache implements SimpleCacheInterface
             $data = file_get_contents($cache_file);
             if (!empty($data)) {
                 $data_unserialized = (array) unserialize($data);
-                $response = [
-                    'ttl' => (int) $data_unserialized['ttl'],
-                    'data' => $data_unserialized['data']
-                ];
-                if (is_string($data_unserialized['data']) && $this->isSerialized($data_unserialized['data'])) {
-                    $response['data'] = unserialize($data_unserialized['data']);
+                if (isset($data_unserialized['ttl'], $data_unserialized['data']) && is_int($data_unserialized['ttl'])) {
+                    $response = [
+                        'ttl' => $data_unserialized['ttl'],
+                        'data' => $data_unserialized['data']
+                    ];
+                    if (is_string($data_unserialized['data']) && $this->isSerialized($data_unserialized['data'])) {
+                        $response['data'] = unserialize($data_unserialized['data']);
+                    }
+                    return $response;
                 }
-                return $response;
             }
         }
         return false;
@@ -54,28 +54,25 @@ class FileCache implements SimpleCacheInterface
         return file_put_contents($cache_file, serialize($data), LOCK_EX) !== false;
     }
 
-    public function get(string $key): mixed
+    public function get(string $key, mixed $default = null): mixed
     {
         $cache_file = $this->cache_dir . DIRECTORY_SEPARATOR . $key;
         if (file_exists($cache_file)) {
             $data = $this->getContents($key);
-            if (is_array($data) && $data['ttl'] > time()) {
+            if (is_array($data) && (int) $data['ttl'] > time()) {
                 return $data['data'];
             }
             $this->delete($key);
         }
-        return false;
+        return $default;
     }
 
-    public function set(string $key, mixed $value, int $ttl): bool
+    public function set(string $key, mixed $value, \DateInterval|null|int $ttl = null): bool
     {
-        if (empty($ttl)) {
-            $ttl = 3600 * 24 * 30;
-        }
         if (is_object($value) || is_array($value)) {
             $value = serialize($value);
         }
-        $value = ['ttl' => time() + $ttl, 'data' => $value];
+        $value = ['ttl' => time() + $this->maxTtl($ttl), 'data' => $value];
         return $this->putContents($key, $value);
     }
 
@@ -85,7 +82,7 @@ class FileCache implements SimpleCacheInterface
         return unlink($cache_file);
     }
 
-    public function flush(): bool
+    public function clear(): bool
     {
         $exito = true;
         foreach ($this->getAllKeys() as $key) {
@@ -108,9 +105,9 @@ class FileCache implements SimpleCacheInterface
         return false;
     }
 
-    public function touch(string $key, int $ttl): bool
+    public function touch(string $key, \DateInterval|null|int $ttl): bool
     {
-        if (($value = $this->get($key)) !== false) {
+        if (($value = $this->get($key)) !== null) {
             return $this->set($key, $value, $ttl);
         }
         return false;
@@ -137,7 +134,7 @@ class FileCache implements SimpleCacheInterface
     {
         return $this->cache_dir;
     }
-    public function increment(string $key, int|float $increment = 1, int $ttl = 0): int|float|false
+    public function increment(string $key, int|float $increment = 1, \DateInterval|null|int $ttl = null): int|float|false
     {
         $value = $this->get($key);
         if (!$value) {
@@ -151,7 +148,7 @@ class FileCache implements SimpleCacheInterface
         }
         return false;
     }
-    public function decrement(string $key, int|float $decrement = 1, int $ttl = 0): int|float|false
+    public function decrement(string $key, int|float $decrement = 1, \DateInterval|null|int $ttl = null): int|float|false
     {
         $value = $this->get($key);
         if (!$value) {
@@ -161,7 +158,7 @@ class FileCache implements SimpleCacheInterface
             }
         } else {
             $new_value = $value - $decrement;
-            if ($this->replace($key, $new_value)){
+            if ($this->replace($key, $new_value)) {
                 return $new_value;
             }
         }
