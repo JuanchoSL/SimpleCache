@@ -2,16 +2,15 @@
 
 namespace JuanchoSL\SimpleCache\Tests\Unit;
 
+use JuanchoSL\SimpleCache\Enums\Engines;
 use JuanchoSL\SimpleCache\Repositories\FileCache;
-use JuanchoSL\SimpleCache\Tests\Common\CacheEnum;
-use JuanchoSL\SimpleCache\Tests\Common\CacheFactory;
 
 class FileCacheTest extends AbstractCache
 {
 
-    public function setUp(): void
+    public function getEngine(): Engines
     {
-        $this->cache = CacheFactory::getInstance(CacheEnum::FILE);
+        return Engines::FILE;
     }
 
     public function testLoad()

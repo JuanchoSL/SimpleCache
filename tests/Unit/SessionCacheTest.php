@@ -2,18 +2,17 @@
 
 namespace JuanchoSL\SimpleCache\Tests\Unit;
 
+use JuanchoSL\SimpleCache\Enums\Engines;
 use JuanchoSL\SimpleCache\Repositories\SessionCache;
-use JuanchoSL\SimpleCache\Tests\Common\CacheEnum;
-use JuanchoSL\SimpleCache\Tests\Common\CacheFactory;
 
 class SessionCacheTest extends AbstractCache
 {
 
-    public function setUp(): void
+    public function getEngine(): Engines
     {
-        //$this->cache = new SessionCache('test_cache');
-        $this->cache = CacheFactory::getInstance(CacheEnum::SESSION);
+        return Engines::SESSION;
     }
+
     public function testLoad()
     {
         $this->assertInstanceOf(SessionCache::class, $this->cache);

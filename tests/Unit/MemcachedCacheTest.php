@@ -2,18 +2,16 @@
 
 namespace JuanchoSL\SimpleCache\Tests\Unit;
 
+use JuanchoSL\SimpleCache\Enums\Engines;
 use JuanchoSL\SimpleCache\Repositories\MemCached;
-use JuanchoSL\SimpleCache\Tests\Common\CacheEnum;
-use JuanchoSL\SimpleCache\Tests\Common\CacheFactory;
 
 class MemcachedCacheTest extends AbstractCache
 {
 
-    public function setUp(): void
+    public function getEngine(): Engines
     {
-        $this->cache = CacheFactory::getInstance(CacheEnum::MEMCACHED);
+        return Engines::MEMCACHED;
     }
-
     public function testLoad()
     {
         $this->assertInstanceOf(MemCached::class, $this->cache);

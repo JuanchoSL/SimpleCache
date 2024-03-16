@@ -2,14 +2,23 @@
 
 namespace JuanchoSL\SimpleCache\Tests\Functional\Simple;
 
+use JuanchoSL\SimpleCache\Enums\Engines;
+use JuanchoSL\SimpleCache\Factories\EngineFactory;
 use JuanchoSL\SimpleCache\Tests\Common\CacheEnum;
 use JuanchoSL\SimpleCache\Tests\Common\CacheFactory;
+use JuanchoSL\SimpleCache\Tests\Common\Credentials;
 use PHPUnit\Framework\TestCase;
 use JuanchoSL\SimpleCache\Adapters\PsrSimpleCacheAdapter;
 use Psr\SimpleCache\CacheInterface;
 
-class MemcacheCacheTest extends TestCase
+class MemcacheCacheTest extends AbstractSimpleCache
 {
+
+    public function getEngine(): Engines
+    {
+        return Engines::MEMCACHE;
+    }
+    /*
     private $cache;
 
     private $value_plain = 'value';
@@ -19,7 +28,7 @@ class MemcacheCacheTest extends TestCase
 
     public function setUp(): void
     {
-        $this->cache = new PsrSimpleCacheAdapter(CacheFactory::getInstance(CacheEnum::MEMCACHE));
+        $this->cache = new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::MEMCACHE, Credentials::getHost(Engines::MEMCACHE)));
     }
     public function tearDown(): void
     {
@@ -84,5 +93,5 @@ class MemcacheCacheTest extends TestCase
         $this->assertObjectHasProperty('key', $results);
         $this->assertEquals('value', $results->key);
     }
-
+*/
 }

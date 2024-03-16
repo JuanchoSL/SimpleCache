@@ -2,18 +2,16 @@
 
 namespace JuanchoSL\SimpleCache\Tests\Unit;
 
+use JuanchoSL\SimpleCache\Enums\Engines;
 use JuanchoSL\SimpleCache\Repositories\ProcessCache;
-use JuanchoSL\SimpleCache\Tests\Common\CacheEnum;
-use JuanchoSL\SimpleCache\Tests\Common\CacheFactory;
 
 class ProcessCacheTest extends AbstractCache
 {
 
-    public function setUp(): void
+    public function getEngine(): Engines
     {
-        $this->cache = CacheFactory::getInstance(CacheEnum::PROCESS);
+        return Engines::PROCESS;
     }
-
     public function testLoad()
     {
         $this->assertInstanceOf(ProcessCache::class, $this->cache);

@@ -2,14 +2,13 @@
 
 namespace JuanchoSL\SimpleCache\Tests\Functional\Simple;
 
-use JuanchoSL\SimpleCache\Tests\Common\CacheEnum;
-use JuanchoSL\SimpleCache\Tests\Common\CacheFactory;
+use JuanchoSL\SimpleCache\Enums\Engines;
 
 class FileCacheTest extends AbstractSimpleCache
 {
 
-    public function getCacheType()
+    public function getEngine(): Engines
     {
-        return CacheFactory::getInstance(CacheEnum::FILE);
+        return Engines::FILE;
     }
 }

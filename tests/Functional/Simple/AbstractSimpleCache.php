@@ -4,10 +4,11 @@ namespace JuanchoSL\SimpleCache\Tests\Functional\Simple;
 
 use DateInterval;
 use JuanchoSL\SimpleCache\Adapters\PsrSimpleCacheAdapter;
+use JuanchoSL\SimpleCache\Enums\Engines;
+use JuanchoSL\SimpleCache\Factories\EngineFactory;
+use JuanchoSL\SimpleCache\Tests\Common\Credentials;
 use Psr\SimpleCache\CacheInterface;
 use PHPUnit\Framework\TestCase;
-
-session_start();
 
 abstract class AbstractSimpleCache extends TestCase
 {
@@ -18,11 +19,12 @@ abstract class AbstractSimpleCache extends TestCase
 
     private $ttl = 5;
 
-    abstract public function getCacheType();
+    abstract public function getEngine():Engines;
 
     public function setUp(): void
     {
-        $this->cache = new PsrSimpleCacheAdapter(static::getCacheType());
+        $this->cache = new PsrSimpleCacheAdapter(EngineFactory::getInstance($this->getEngine(), Credentials::getHost($this->getEngine())));
+        //$this->cache = new PsrSimpleCacheAdapter(static::getCacheType());
     }
     public function tearDown(): void
     {

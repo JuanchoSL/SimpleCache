@@ -2,16 +2,15 @@
 
 namespace JuanchoSL\SimpleCache\Tests\Unit;
 
+use JuanchoSL\SimpleCache\Enums\Engines;
 use JuanchoSL\SimpleCache\Repositories\RedisCache;
-use JuanchoSL\SimpleCache\Tests\Common\CacheEnum;
-use JuanchoSL\SimpleCache\Tests\Common\CacheFactory;
 
 class RedisCacheTest extends AbstractCache
 {
 
-    public function setUp(): void
+    public function getEngine(): Engines
     {
-        $this->cache = CacheFactory::getInstance(CacheEnum::REDIS);
+        return Engines::REDIS;
     }
 
     public function testLoad()

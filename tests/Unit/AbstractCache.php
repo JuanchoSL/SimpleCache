@@ -2,6 +2,9 @@
 
 namespace JuanchoSL\SimpleCache\Tests\Unit;
 
+use JuanchoSL\SimpleCache\Enums\Engines;
+use JuanchoSL\SimpleCache\Factories\EngineFactory;
+use JuanchoSL\SimpleCache\Tests\Common\Credentials;
 use PHPUnit\Framework\TestCase;
 
 abstract class AbstractCache extends TestCase
@@ -12,6 +15,13 @@ abstract class AbstractCache extends TestCase
     private $value_array = ['value'];
 
     private $ttl = 5;
+
+    abstract protected function getEngine(): Engines;
+
+    public function setUp(): void
+    {
+        $this->cache = EngineFactory::getInstance($this->getEngine(), Credentials::getHost($this->getEngine()));
+    }
 
     public function tearDown(): void
     {
@@ -80,6 +90,7 @@ abstract class AbstractCache extends TestCase
         $this->assertIsArray($results);
         $this->assertNotEmpty($results);
         $this->assertContains('key', $results);
+        print_r($result);
     }
     public function testSetArray()
     {
