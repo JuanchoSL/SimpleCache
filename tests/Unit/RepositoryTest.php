@@ -7,7 +7,7 @@ use JuanchoSL\SimpleCache\Factories\EngineFactory;
 use JuanchoSL\SimpleCache\Tests\Common\Credentials;
 use PHPUnit\Framework\TestCase;
 
-class TestRepository extends TestCase
+class RepositoryTest extends TestCase
 {
 
     private $value_plain = 'value';

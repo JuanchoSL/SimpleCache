@@ -10,7 +10,7 @@ use JuanchoSL\SimpleCache\Tests\Common\Credentials;
 use Psr\SimpleCache\CacheInterface;
 use PHPUnit\Framework\TestCase;
 
-class TestSimpleCache extends TestCase
+class SimpleCacheTest extends TestCase
 {
 
     private $value_plain = 'value';
