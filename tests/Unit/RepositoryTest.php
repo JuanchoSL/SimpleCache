@@ -4,6 +4,11 @@ namespace JuanchoSL\SimpleCache\Tests\Unit;
 
 use JuanchoSL\SimpleCache\Enums\Engines;
 use JuanchoSL\SimpleCache\Factories\EngineFactory;
+use JuanchoSL\SimpleCache\Repositories\FileCache;
+use JuanchoSL\SimpleCache\Repositories\MemCached;
+use JuanchoSL\SimpleCache\Repositories\ProcessCache;
+use JuanchoSL\SimpleCache\Repositories\RedisCache;
+use JuanchoSL\SimpleCache\Repositories\SessionCache;
 use JuanchoSL\SimpleCache\Tests\Common\Credentials;
 use PHPUnit\Framework\TestCase;
 
@@ -20,25 +25,25 @@ class RepositoryTest extends TestCase
     {
         return [
             'Process' => [
-                EngineFactory::getInstance(Engines::PROCESS, Credentials::getHost(Engines::PROCESS))
+                new ProcessCache(Credentials::getHost(Engines::PROCESS))
             ],
             'Session' => [
-                EngineFactory::getInstance(Engines::SESSION, Credentials::getHost(Engines::SESSION))
+                new SessionCache(Credentials::getHost(Engines::SESSION))
             ],
             'File' => [
-                EngineFactory::getInstance(Engines::FILE, Credentials::getHost(Engines::FILE))
+                new FileCache(Credentials::getHost(Engines::FILE))
             ],
             /*
         'Memcache' => [
-            EngineFactory::getInstance(Engines::MEMCACHE, Credentials::getHost(Engines::MEMCACHE))
+            new Memcache(Credentials::getHost(Engines::MEMCACHE))
+        ],
+        'Memcached' => [
+            new MemCached(Credentials::getHost(Engines::MEMCACHED))
+        ],
+        'Redis' => [
+            new RedisCache(Credentials::getHost(Engines::REDIS))
         ],
         */
-            'Memcached' => [
-                EngineFactory::getInstance(Engines::MEMCACHED, Credentials::getHost(Engines::MEMCACHED))
-            ],
-            'Redis' => [
-                EngineFactory::getInstance(Engines::REDIS, Credentials::getHost(Engines::REDIS))
-            ],
         ];
     }
 

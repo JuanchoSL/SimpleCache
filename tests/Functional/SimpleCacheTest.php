@@ -33,13 +33,13 @@ class SimpleCacheTest extends TestCase
         'Memcache' => [
              new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::MEMCACHE, Credentials::getHost(Engines::MEMCACHE)))
         ],
+        'Memcached' => [
+            new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::MEMCACHED, Credentials::getHost(Engines::MEMCACHED)))
+        ],
+        'Redis' => [
+            new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::REDIS, Credentials::getHost(Engines::REDIS)))
+        ],
         */
-            'Memcached' => [
-                new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::MEMCACHED, Credentials::getHost(Engines::MEMCACHED)))
-            ],
-            'Redis' => [
-                new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::REDIS, Credentials::getHost(Engines::REDIS)))
-            ],
         ];
     }
 
