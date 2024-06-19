@@ -1,6 +1,22 @@
 # Change Simple Cache
 
 
+## [1.0.3] - 2024-06-20
+
+### Added
+
+- Engine Enums
+- Factory using Engine enums
+
+### Changed
+
+- Clean Unit tests using data providers
+
+### Fixed
+
+- clear method for Session and Process caches, remove all keys but not deleted the master repository
+
+
 ## [1.0.2] - 2024-03-05
 
 ### Added

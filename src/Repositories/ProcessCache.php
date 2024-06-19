@@ -50,8 +50,8 @@ class ProcessCache extends AbstractCache
 
     public function clear(): bool
     {
-        unset(self::$cache[$this->host_name]);
-        return !array_key_exists($this->host_name, self::$cache);
+        self::$cache[$this->host_name] = [];
+        return empty(self::$cache[$this->host_name]);
     }
 
     public function replace(string $key, mixed $value): bool
