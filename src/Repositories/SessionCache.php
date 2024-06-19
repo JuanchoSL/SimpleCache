@@ -12,7 +12,7 @@ class SessionCache extends AbstractCache
     public function __construct(string $index)
     {
         $this->host_name = $index;
-        if (session_status() !== PHP_SESSION_ACTIVE && !headers_sent())
+        if (session_status() !== PHP_SESSION_ACTIVE /*&& !headers_sent()*/)
             session_start();
         if (empty($_SESSION) || !array_key_exists($this->host_name, $_SESSION)) {
             $_SESSION[$this->host_name] = array();
@@ -50,8 +50,8 @@ class SessionCache extends AbstractCache
 
     public function clear(): bool
     {
-        unset($_SESSION[$this->host_name]);
-        return !array_key_exists($this->host_name, $_SESSION);
+        $_SESSION[$this->host_name] = [];
+        return empty($_SESSION[$this->host_name]);
     }
 
     public function replace(string $key, mixed $value): bool
