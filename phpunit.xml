@@ -4,6 +4,12 @@
         <testsuite name="All">
             <directory>./tests/</directory>
         </testsuite>
+        <testsuite name="Unit">
+            <directory>./tests/Unit/</directory>
+        </testsuite>
+        <testsuite name="Functional">
+            <directory>./tests/Functional/</directory>
+        </testsuite>
     </testsuites>
     <php>
     <env name="MEMCACHE_HOST" value="host.docker.internal:11211"/>
