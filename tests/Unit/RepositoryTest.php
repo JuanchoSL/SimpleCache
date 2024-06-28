@@ -37,13 +37,13 @@ class RepositoryTest extends TestCase
         'Memcache' => [
             new Memcache(Credentials::getHost(Engines::MEMCACHE))
         ],
-        'Memcached' => [
-            new MemCached(Credentials::getHost(Engines::MEMCACHED))
-        ],
-        'Redis' => [
-            new RedisCache(Credentials::getHost(Engines::REDIS))
-        ],
         */
+            'Memcached' => [
+                new MemCached(Credentials::getHost(Engines::MEMCACHED))
+            ],
+            'Redis' => [
+                new RedisCache(Credentials::getHost(Engines::REDIS))
+            ],
         ];
     }
 
