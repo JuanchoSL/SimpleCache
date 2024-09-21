@@ -30,11 +30,9 @@ class PoolCacheTest extends TestCase
             'File' => [
                 new PsrCachePool(EngineFactory::getInstance(Engines::FILE, Credentials::getHost(Engines::FILE)))
             ],
-            /*
-        'Memcache' => [
-             new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::MEMCACHE, Credentials::getHost(Engines::MEMCACHE)))
-        ],
-        */
+            'Memcache' => [
+                new PsrCachePool(EngineFactory::getInstance(Engines::MEMCACHE, Credentials::getHost(Engines::MEMCACHE)))
+            ],
             'Memcached' => [
                 new PsrCachePool(EngineFactory::getInstance(Engines::MEMCACHED, Credentials::getHost(Engines::MEMCACHED)))
             ],
@@ -59,11 +57,12 @@ class PoolCacheTest extends TestCase
      */
     public function testSet($cache)
     {
+        $name = str_replace('\\','-',get_class($cache));
         $interval = DateInterval::createFromDateString("+{$this->ttl} seconds");
-        $item = new PsrCacheItem('key');
+        $item = new PsrCacheItem("{$name}.key");
         $item = $item->set($this->value_plain)->expiresAfter($interval);
         $result = $cache->save($item);
-        //$result = $cache->set('key', $this->value_plain, $this->ttl);
+        //$result = $cache->set("{$name}.key", $this->value_plain, $this->ttl);
         $this->assertTrue($result);
         $cache->clear();
     }
@@ -73,12 +72,13 @@ class PoolCacheTest extends TestCase
      */
     public function testGetOk($cache)
     {
+        $name = str_replace('\\','-',get_class($cache));
         $interval = DateInterval::createFromDateString("+{$this->ttl} seconds");
-        $item = new PsrCacheItem('key');
+        $item = new PsrCacheItem("{$name}.key");
         $item = $item->set($this->value_plain)->expiresAfter($interval);
         $result = $cache->save($item);
         $this->assertTrue($result);
-        $read_ok = $cache->getItem('key');
+        $read_ok = $cache->getItem("{$name}.key");
         $this->assertEquals($this->value_plain, $read_ok->get($cache));
         $cache->clear();
     }
@@ -88,13 +88,14 @@ class PoolCacheTest extends TestCase
      */
     public function testGetKo($cache)
     {
+        $name = str_replace('\\','-',get_class($cache));
         $interval = DateInterval::createFromDateString("+{$this->ttl} seconds");
-        $item = new PsrCacheItem('key');
+        $item = new PsrCacheItem("{$name}.key");
         $item = $item->set($this->value_plain)->expiresAfter($interval);
         $result = $cache->save($item);
         $this->assertTrue($result);
         sleep($this->ttl + 1);
-        $read_ko = $cache->getItem('key');
+        $read_ko = $cache->getItem("{$name}.key");
         $this->assertNull($read_ko->get());
         $cache->clear();
     }
@@ -104,16 +105,17 @@ class PoolCacheTest extends TestCase
      */
     public function testDelete($cache)
     {
+        $name = str_replace('\\','-',get_class($cache));
         $interval = DateInterval::createFromDateString("+{$this->ttl} seconds");
-        $item = new PsrCacheItem('key');
+        $item = new PsrCacheItem("{$name}.key");
         $item = $item->set($this->value_plain)->expiresAfter($interval);
         $result = $cache->save($item);
         $this->assertTrue($result);
-        $read_ok = $cache->getItem('key');
+        $read_ok = $cache->getItem("{$name}.key");
         $this->assertEquals($this->value_plain, $read_ok->get());
-        $result = $cache->deleteItem('key');
+        $result = $cache->deleteItem("{$name}.key");
         $this->assertTrue($result);
-        $read_ko = $cache->getItem('key');
+        $read_ko = $cache->getItem("{$name}.key");
         $this->assertNull($read_ko->get());
         $cache->clear();
     }
@@ -123,11 +125,12 @@ class PoolCacheTest extends TestCase
      */
     public function testSetArray($cache)
     {
-        $item = new PsrCacheItem('array');
+        $name = str_replace('\\','-',get_class($cache));
+        $item = new PsrCacheItem("{$name}.array");
         $item = $item->set(['key' => 'value'])->expiresAfter($this->ttl);
         $result = $cache->save($item);
         $this->assertTrue($result);
-        $results = $cache->getItem('array')->get($cache);
+        $results = $cache->getItem("{$name}.array")->get($cache);
         $this->assertIsArray($results);
         $this->assertNotEmpty($results);
         $this->assertArrayHasKey('key', $results);
@@ -140,13 +143,14 @@ class PoolCacheTest extends TestCase
      */
     public function testSetObject($cache)
     {
+        $name = str_replace('\\','-',get_class($cache));
         $obj = new \stdClass;
         $obj->key = 'value';
-        $item = new PsrCacheItem('object');
+        $item = new PsrCacheItem("{$name}.object");
         $item = $item->set($obj)->expiresAfter($this->ttl);
         $result = $cache->save($item);
         $this->assertTrue($result);
-        $results = $cache->getItem('object')->get();
+        $results = $cache->getItem("{$name}.object")->get();
         $this->assertIsObject($results);
         $this->assertObjectHasProperty('key', $results);
         $this->assertEquals('value', $results->key);
