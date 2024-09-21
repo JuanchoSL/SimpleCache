@@ -36,4 +36,6 @@ jobs:
     # Docs: https://getcomposer.org/doc/articles/scripts.md
 
     - name: Run test suite
+      env:
+        TMPDIR: ${{ runner.temp }}
       run: vendor/bin/phpunit --bootstrap vendor/autoload.php --filter '@Process'

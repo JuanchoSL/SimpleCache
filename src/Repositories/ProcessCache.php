@@ -23,13 +23,13 @@ class ProcessCache extends AbstractCache
     {
         if (array_key_exists($key, self::$cache[$this->host_name])) {
             $value = self::$cache[$this->host_name][$key];
-            if (isset($value['ttl'], $value['value'])) {
-                if ($value['ttl'] > time()) {
-                    return $value['value'];
-                } else {
-                    $this->delete($key);
-                }
+            if (isset($value['ttl'], $value['value']) && $value['ttl'] > time()) {
+                return $value['value'];
             }
+            $this->log("The key {key} is not valid", 'debug', ['key' => $key, 'data' => $value, 'method' => __FUNCTION__]);
+            $this->delete($key);
+        } else {
+            $this->log("The key {key} does not exists", 'debug', ['key' => $key, 'method' => __FUNCTION__]);
         }
         return $default;
     }
@@ -37,15 +37,19 @@ class ProcessCache extends AbstractCache
     public function set(string $key, mixed $value, \DateInterval|null|int $ttl = null): bool
     {
         self::$cache[$this->host_name][$key] = array('ttl' => time() + $this->maxTtl($ttl), 'value' => $value);
-        return (isset(self::$cache[$this->host_name][$key]));
+        $result = (isset(self::$cache[$this->host_name][$key]));
+        $this->log("The key {key} is going to save", 'debug', ['key' => $key, 'data' => $value, 'method' => __FUNCTION__, 'result' => intval($result)]);
+        return $result;
     }
 
     public function delete(string $key): bool
     {
         if (isset(self::$cache[$this->host_name]) && array_key_exists($key, self::$cache[$this->host_name])) {
+            $this->log("The key {key} is going to delete", 'debug', ['key' => $key, 'method' => __FUNCTION__]);
             unset(self::$cache[$this->host_name][$key]);
+            return true;
         }
-        return true;
+        return false;
     }
 
     public function clear(): bool
@@ -57,9 +61,11 @@ class ProcessCache extends AbstractCache
     public function replace(string $key, mixed $value): bool
     {
         if (array_key_exists($key, self::$cache[$this->host_name])) {
+            $this->log("The key {key} is going to be replaced", 'debug', ['key' => $key, 'old' => self::$cache[$this->host_name][$key]['value'], 'new' => $value, 'method' => __FUNCTION__]);
             self::$cache[$this->host_name][$key]['value'] = $value;
             return true;
         }
+        $this->log("The key {key} does not exists", 'debug', ['key' => $key, 'method' => __FUNCTION__]);
         return false;
     }
 

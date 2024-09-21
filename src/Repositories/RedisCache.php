@@ -38,6 +38,7 @@ class RedisCache extends AbstractCache
             }
             return $value;
         }
+        $this->log("The key {key} does not exists", 'debug', ['key' => $key, 'method' => __FUNCTION__]);
         return $default;
     }
 
@@ -46,7 +47,9 @@ class RedisCache extends AbstractCache
         if (is_object($value) || is_array($value)) {
             $value = serialize($value);
         }
-        return $this->server->set($key, $value, $this->maxTtl($ttl));
+        $result = $this->server->set($key, $value, $this->maxTtl($ttl));
+        $this->log("The key {key} is going to save", 'debug', ['key' => $key, 'data' => $value, 'method' => __FUNCTION__, 'result' => intval($result)]);
+        return $result;
     }
 
     public function delete(string $key): bool
@@ -58,7 +61,9 @@ class RedisCache extends AbstractCache
         } elseif (method_exists($this->server, 'unlink')) {
             $result = $this->server->unlink($key);
         }
-        return (isset($result) && $result !== false);
+        $result = (isset($result) && $result !== false);
+        $this->log("The key {key} is going to delete", 'debug', ['key' => $key, 'method' => __FUNCTION__, 'result' => intval($result)]);
+        return $result;
     }
 
     public function clear(): bool
@@ -72,7 +77,9 @@ class RedisCache extends AbstractCache
             $value = serialize($value);
         }
         $old = $this->server->getSet($key, $value);
-        return ($old !== $value);
+        $result = ($old !== $value);
+        $this->log("The key {key} is going to be replaced", 'debug', ['key' => $key, 'old' => $old, 'new' => $value, 'method' => __FUNCTION__, 'result' => intval($result)]);
+        return $result;
     }
 
     public function touch(string $key, \DateInterval|null|int $ttl): bool

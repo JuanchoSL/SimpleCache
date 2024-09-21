@@ -1,9 +1,11 @@
 <?php
 
-namespace JuanchoSL\SimpleCache\Tests\Unit;
+namespace JuanchoSL\SimpleCache\Tests\Integration;
 
+use JuanchoSL\Logger\Composers\TextComposer;
+use JuanchoSL\Logger\Logger;
+use JuanchoSL\Logger\Repositories\FileRepository;
 use JuanchoSL\SimpleCache\Enums\Engines;
-use JuanchoSL\SimpleCache\Factories\EngineFactory;
 use JuanchoSL\SimpleCache\Repositories\FileCache;
 use JuanchoSL\SimpleCache\Repositories\MemCache;
 use JuanchoSL\SimpleCache\Repositories\MemCached;
@@ -13,7 +15,7 @@ use JuanchoSL\SimpleCache\Repositories\SessionCache;
 use JuanchoSL\SimpleCache\Tests\Common\Credentials;
 use PHPUnit\Framework\TestCase;
 
-class RepositoryTest extends TestCase
+class LoggerRepositoryTest extends TestCase
 {
 
     private $value_plain = 'value';
@@ -21,36 +23,31 @@ class RepositoryTest extends TestCase
 
     private $ttl = 5;
 
-
+    private $file_path;
     protected function providerLoginData(): array
     {
+        $debug = true;
+        defined('TMPDIR') or define('TMPDIR', sys_get_temp_dir());
+
+        $this->file_path = TMPDIR . DIRECTORY_SEPARATOR . 'error.log';
+        $logger = new Logger((new FileRepository($this->file_path))->setComposer(new TextComposer));
         return [
-            'Process' => [
-                new ProcessCache(Credentials::getHost(Engines::PROCESS))
-            ],
-            'Session' => [
-                new SessionCache(Credentials::getHost(Engines::SESSION))
-            ],
-            'File' => [
-                new FileCache(Credentials::getHost(Engines::FILE))
-            ],
-            'Memcache' => [
-                new MemCache(Credentials::getHost(Engines::MEMCACHE))
-            ],
-            'Memcached' => [
-                new MemCached(Credentials::getHost(Engines::MEMCACHED))
-            ],
-            'Redis' => [
-                new RedisCache(Credentials::getHost(Engines::REDIS))
-            ],
+            'Process' => [new ProcessCache(Credentials::getHost(Engines::PROCESS)), $logger, $debug],
+            'Session' => [new SessionCache(Credentials::getHost(Engines::SESSION)), $logger, $debug],
+            'File' => [new FileCache(Credentials::getHost(Engines::FILE)), $logger, $debug],
+            'Memcache' => [new MemCache(Credentials::getHost(Engines::MEMCACHE)), $logger, $debug],
+            'Memcached' => [new MemCached(Credentials::getHost(Engines::MEMCACHED)), $logger, $debug],
+            'Redis' => [new RedisCache(Credentials::getHost(Engines::REDIS)), $logger, $debug],
         ];
     }
 
     /**
      * @dataProvider providerLoginData
      */
-    public function testSet($cache)
+    public function testSet($cache, $logger, $debug)
     {
+        $cache->setLogger($logger);
+        $cache->setDebug($debug);
         $name = str_replace('\\', '-', get_class($cache));
         $result = $cache->set("{$name}.key", $this->value_plain, $this->ttl);
         $this->assertTrue($result);
@@ -60,8 +57,10 @@ class RepositoryTest extends TestCase
     /**
      * @dataProvider providerLoginData
      */
-    public function testGetOk($cache)
+    public function testGetOk($cache, $logger, $debug)
     {
+        $cache->setLogger($logger);
+        $cache->setDebug($debug);
         $name = str_replace('\\', '-', get_class($cache));
         $result = $cache->set("{$name}.key", $this->value_plain, $this->ttl);
         $this->assertTrue($result);
@@ -73,8 +72,10 @@ class RepositoryTest extends TestCase
     /**
      * @dataProvider providerLoginData
      */
-    public function testGetKo($cache)
+    public function testGetKo($cache, $logger, $debug)
     {
+        $cache->setLogger($logger);
+        $cache->setDebug($debug);
         $name = str_replace('\\', '-', get_class($cache));
         $result = $cache->set("{$name}.key", $this->value_plain, $this->ttl);
         $this->assertTrue($result);
@@ -87,8 +88,10 @@ class RepositoryTest extends TestCase
     /**
      * @dataProvider providerLoginData
      */
-    public function testTouch($cache)
+    public function testTouch($cache, $logger, $debug)
     {
+        $cache->setLogger($logger);
+        $cache->setDebug($debug);
         $name = str_replace('\\', '-', get_class($cache));
         $result = $cache->set("{$name}.key", $this->value_plain, $this->ttl);
         $this->assertTrue($result);
@@ -106,8 +109,10 @@ class RepositoryTest extends TestCase
     /**
      * @dataProvider providerLoginData
      */
-    public function testReplace($cache)
+    public function testReplace($cache, $logger, $debug)
     {
+        $cache->setLogger($logger);
+        $cache->setDebug($debug);
         $name = str_replace('\\', '-', get_class($cache));
         $result = $cache->set("{$name}.key", $this->value_plain, $this->ttl);
         $this->assertTrue($result);
@@ -123,8 +128,10 @@ class RepositoryTest extends TestCase
     /**
      * @dataProvider providerLoginData
      */
-    public function testDelete($cache)
+    public function testDelete($cache, $logger, $debug)
     {
+        $cache->setLogger($logger);
+        $cache->setDebug($debug);
         $name = str_replace('\\', '-', get_class($cache));
         $result = $cache->set("{$name}.key", $this->value_plain, $this->ttl);
         $this->assertTrue($result);
@@ -141,8 +148,10 @@ class RepositoryTest extends TestCase
      * @dataProvider providerLoginData
      */
     /*
-    public function testAllKeys($cache)
+    public function testAllKeys($cache,$logger,$debug)
     {
+        $cache->setLogger($logger);
+        $cache->setDebug($debug);
         $result = $cache->set("{$name}.key", $this->value_plain, $this->ttl);
         $this->assertTrue($result);
         $results = $cache->getAllKeys($cache);
@@ -156,8 +165,10 @@ class RepositoryTest extends TestCase
     /**
      * @dataProvider providerLoginData
      */
-    public function testSetArray($cache)
+    public function testSetArray($cache, $logger, $debug)
     {
+        $cache->setLogger($logger);
+        $cache->setDebug($debug);
         $name = str_replace('\\', '-', get_class($cache));
         $result = $cache->set("{$name}.array", ['key' => 'value'], $this->ttl);
         $this->assertTrue($result);
@@ -172,8 +183,10 @@ class RepositoryTest extends TestCase
     /**
      * @dataProvider providerLoginData
      */
-    public function testSetObject($cache)
+    public function testSetObject($cache, $logger, $debug)
     {
+        $cache->setLogger($logger);
+        $cache->setDebug($debug);
         $name = str_replace('\\', '-', get_class($cache));
         $obj = new \stdClass;
         $obj->key = 'value';
@@ -189,8 +202,10 @@ class RepositoryTest extends TestCase
     /**
      * @dataProvider providerLoginData
      */
-    public function testIncrement($cache)
+    public function testIncrement($cache, $logger, $debug)
     {
+        $cache->setLogger($logger);
+        $cache->setDebug($debug);
         $name = str_replace('\\', '-', get_class($cache));
         $initial = $cache->increment("{$name}.key_increment", 1, $this->ttl);
         $this->assertEquals(1, $initial);
@@ -204,8 +219,10 @@ class RepositoryTest extends TestCase
     /**
      * @dataProvider providerLoginData
      */
-    public function testDecrement($cache)
+    public function testDecrement($cache, $logger, $debug)
     {
+        $cache->setLogger($logger);
+        $cache->setDebug($debug);
         $name = str_replace('\\', '-', get_class($cache));
         $initial = $cache->decrement("{$name}.key_decrement", 1, $this->ttl);
         $this->assertEquals(-1, $initial);
@@ -219,8 +236,10 @@ class RepositoryTest extends TestCase
     /**
      * @dataProvider providerLoginData
      */
-    public function testIncrementFloat($cache)
+    public function testIncrementFloat($cache, $logger, $debug)
     {
+        $cache->setLogger($logger);
+        $cache->setDebug($debug);
         $name = str_replace('\\', '-', get_class($cache));
         $initial = $cache->increment("{$name}.key_increment_float", 1.5, $this->ttl);
         $this->assertEquals(1.5, $initial);
@@ -234,8 +253,10 @@ class RepositoryTest extends TestCase
     /**
      * @dataProvider providerLoginData
      */
-    public function testDecrementFloat($cache)
+    public function testDecrementFloat($cache, $logger, $debug)
     {
+        $cache->setLogger($logger);
+        $cache->setDebug($debug);
         $name = str_replace('\\', '-', get_class($cache));
         $initial = $cache->decrement("{$name}.key_decrement_float", 1.5, $this->ttl);
         $this->assertEquals(-1.5, $initial);
@@ -251,8 +272,10 @@ class RepositoryTest extends TestCase
     /**
      * @dataProvider providerLoginData
      */
-    public function testSetMultiple($cache)
+    public function testSetMultiple($cache, $logger, $debug)
     {
+        $cache->setLogger($logger);
+        $cache->setDebug($debug);
         $name = str_replace('\\', '-', get_class($cache));
         $this->assertTrue($cache->setMultiple(["a" => "aa", "b" => "bb", "c" => "cc"], \DateInterval::createFromDateString("10 seconds")));
     }
@@ -260,10 +283,12 @@ class RepositoryTest extends TestCase
     /**
      * @dataProvider providerLoginData
      */
-    public function testGetMultiple($cache)
+    public function testGetMultiple($cache, $logger, $debug)
     {
+        $cache->setLogger($logger);
+        $cache->setDebug($debug);
         $name = str_replace('\\', '-', get_class($cache));
-        $this->testSetMultiple($cache);
+        $this->testSetMultiple($cache, $logger, $debug);
         $keys = ["a", "b", "c"];
         $results = $cache->getMultiple($keys);
         foreach ($keys as $key) {
@@ -275,12 +300,24 @@ class RepositoryTest extends TestCase
     /**
      * @dataProvider providerLoginData
      */
-    public function testDeleteMultiple($cache)
+    public function testDeleteMultiple($cache, $logger, $debug)
     {
+        $cache->setLogger($logger);
+        $cache->setDebug($debug);
         $name = str_replace('\\', '-', get_class($cache));
-        $this->testSetMultiple($cache);
+        $this->testSetMultiple($cache, $logger, $debug);
         $keys = ["a", "b", "c"];
         $this->assertTrue($cache->deleteMultiple($keys));
         $cache->clear();
+    }
+
+    public function testDeleteLog()
+    {
+        defined('TMPDIR') or define('TMPDIR', sys_get_temp_dir());
+
+        $file_path = TMPDIR . DIRECTORY_SEPARATOR . 'error.log';
+        $this->assertFileExists($file_path);
+        $this->assertTrue(unlink($file_path));
+        $this->assertFileDoesNotExist($file_path);
     }
 }

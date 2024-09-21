@@ -62,7 +62,10 @@ class FileCache extends AbstractCache
             if (is_array($data) && (int) $data['ttl'] > time()) {
                 return $data['data'];
             }
+            $this->log("The key {key} is not valid", 'debug', ['key' => $key, 'data' => $data, 'method' => __FUNCTION__]);
             $this->delete($key);
+        } else {
+            $this->log("The file {cache_file} does not exists", 'debug', ['cache_file' => $cache_file, 'method' => __FUNCTION__]);
         }
         return $default;
     }
@@ -73,13 +76,17 @@ class FileCache extends AbstractCache
             $value = serialize($value);
         }
         $value = ['ttl' => time() + $this->maxTtl($ttl), 'data' => $value];
-        return $this->putContents($key, $value);
+        $result = $this->putContents($key, $value);
+        $this->log("The key {key} is going to save", 'debug', ['key' => $key, 'data' => $value, 'method' => __FUNCTION__, 'result' => intval($result)]);
+        return $result;
     }
 
     public function delete(string $key): bool
     {
         $cache_file = $this->cache_dir . DIRECTORY_SEPARATOR . $key;
-        return unlink($cache_file);
+        $result = unlink($cache_file);
+        $this->log("The file {key} is going to delete", 'debug', ['key' => $cache_file, 'method' => __FUNCTION__, 'result' => intval($result)]);
+        return $result;
     }
 
     public function clear(): bool
@@ -99,9 +106,10 @@ class FileCache extends AbstractCache
                 $value = serialize($value);
             }
             $value = ['ttl' => $data['ttl'], 'data' => $value];
-            return $this->putContents($key, $value);
+            $result = $this->putContents($key, $value);
+            $this->log("The key {key} is going to be replaced", 'debug', ['key' => $key, 'old' => $data['data'], 'new' => $value, 'method' => __FUNCTION__, 'result' => intval($result)]);
+            return $result;
         }
-
         return false;
     }
 
