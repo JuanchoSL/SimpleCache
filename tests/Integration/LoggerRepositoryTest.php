@@ -31,7 +31,11 @@ class LoggerRepositoryTest extends TestCase
 
         $this->file_path = TMPDIR . DIRECTORY_SEPARATOR . 'error.log';
         $logger = new Logger((new FileRepository($this->file_path))->setComposer(new TextComposer));
-        $providers = [
+        if (Credentials::GIT_MODE) {
+            return ['Process' => [new ProcessCache(Credentials::getHost(Engines::PROCESS)), $logger, $debug]];
+        }
+
+        return [
             'Process' => [new ProcessCache(Credentials::getHost(Engines::PROCESS)), $logger, $debug],
             'Session' => [new SessionCache(Credentials::getHost(Engines::SESSION)), $logger, $debug],
             'File' => [new FileCache(Credentials::getHost(Engines::FILE)), $logger, $debug],
@@ -39,7 +43,6 @@ class LoggerRepositoryTest extends TestCase
             'Memcached' => [new MemCached(Credentials::getHost(Engines::MEMCACHED)), $logger, $debug],
             'Redis' => [new RedisCache(Credentials::getHost(Engines::REDIS)), $logger, $debug],
         ];
-        return (Credentials::GIT_MODE === false) ? $providers : [Credentials::GIT_MODE => $providers[Credentials::GIT_MODE]];
     }
 
     /**

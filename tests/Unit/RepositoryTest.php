@@ -24,7 +24,10 @@ class RepositoryTest extends TestCase
 
     protected function providerLoginData(): array
     {
-        $providers = [
+        if (Credentials::GIT_MODE) {
+            return ['Process' => [new ProcessCache(Credentials::getHost(Engines::PROCESS))]];
+        }
+        return [
             'Process' => [
                 new ProcessCache(Credentials::getHost(Engines::PROCESS))
             ],
@@ -44,7 +47,6 @@ class RepositoryTest extends TestCase
                 new RedisCache(Credentials::getHost(Engines::REDIS))
             ],
         ];
-        return (Credentials::GIT_MODE === false) ? $providers : [Credentials::GIT_MODE => $providers[Credentials::GIT_MODE]];
     }
 
     /**

@@ -19,7 +19,10 @@ class SimpleCacheTest extends TestCase
 
     protected function providerLoginData($cache): array
     {
-        $providers = [
+        if (Credentials::GIT_MODE) {
+            return ['Process' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::PROCESS, Credentials::getHost(Engines::PROCESS)))]];
+        }
+        return [
             'Process' => [
                 new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::PROCESS, Credentials::getHost(Engines::PROCESS)))
             ],
@@ -39,7 +42,6 @@ class SimpleCacheTest extends TestCase
                 new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::REDIS, Credentials::getHost(Engines::REDIS)))
             ],
         ];
-        return (Credentials::GIT_MODE === false) ? $providers : [Credentials::GIT_MODE => $providers[Credentials::GIT_MODE]];
     }
 
     /**
