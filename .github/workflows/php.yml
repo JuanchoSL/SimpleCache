@@ -38,4 +38,4 @@ jobs:
     - name: Run test suite
       env:
         TMPDIR: ${{ runner.temp }}
-      run: vendor/bin/phpunit --bootstrap vendor/autoload.php --filter '@Process'
+      run: composer tests
