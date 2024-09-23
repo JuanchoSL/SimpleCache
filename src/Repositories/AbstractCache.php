@@ -24,7 +24,11 @@ abstract class AbstractCache implements SimpleCacheInterface
     {
         if (isset($this->logger)) {
             if ($this->debug || $log_level != 'debug') {
-                $context['memory'] = memory_get_usage();
+                if ($this->debug) {
+                    $context['memory'] = memory_get_usage();
+                } elseif (array_key_exists('data', $context)) {
+                    unset($context['data']);
+                }
                 $context['Engine'] = (new \ReflectionClass($this))->getShortName();
                 $this->logger->log($log_level, $message, $context);
             }

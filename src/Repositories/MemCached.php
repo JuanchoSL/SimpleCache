@@ -40,7 +40,7 @@ class MemCached extends AbstractCache
     public function set(string $key, mixed $value, \DateInterval|null|int $ttl = null): bool
     {
         $result = $this->server->set($key, $value, $this->maxTtl($ttl));
-        $this->log("The key {key} is going to save", 'debug', ['key' => $key, 'data' => $value, 'method' => __FUNCTION__, 'result' => intval($result)]);
+        $this->log("The key {key} is going to save", 'info', ['key' => $key, 'data' => $value, 'method' => __FUNCTION__, 'result' => intval($result)]);
         return $result;
     }
 
@@ -57,7 +57,7 @@ class MemCached extends AbstractCache
     public function delete(string $key): bool
     {
         $result = $this->server->delete($key);
-        $this->log("The key {key} is going to delete", 'debug', ['key' => $key, 'method' => __FUNCTION__, 'result' => intval($result)]);
+        $this->log("The key {key} is going to delete", 'info', ['key' => $key, 'method' => __FUNCTION__, 'result' => intval($result)]);
         return $result;
     }
 
@@ -71,7 +71,7 @@ class MemCached extends AbstractCache
         $result = $this->server->get($key);
         if ($this->server->getResultCode() == \Memcached::RES_NOTFOUND) {
             $result = $default;
-            $this->log("The key {key} does not exists", 'debug', ['key' => $key, 'method' => __FUNCTION__]);
+            $this->log("The key {key} does not exists", 'info', ['key' => $key, 'method' => __FUNCTION__]);
         }
         return $result;
     }
@@ -79,7 +79,7 @@ class MemCached extends AbstractCache
     public function replace(string $key, mixed $value): bool
     {
         $result = $this->server->replace($key, $value);
-        $this->log("The key {key} is going to be replaced", 'debug', ['key' => $key, 'new' => $value, 'method' => __FUNCTION__, 'result' => intval($result)]);
+        $this->log("The key {key} is going to be replaced", 'info', ['key' => $key, 'data' => ['new' => $value], 'method' => __FUNCTION__, 'result' => intval($result)]);
         return $result;
     }
 

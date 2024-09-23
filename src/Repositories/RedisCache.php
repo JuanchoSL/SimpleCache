@@ -48,7 +48,7 @@ class RedisCache extends AbstractCache
             }
             return $value;
         }
-        $this->log("The key {key} does not exists", 'debug', ['key' => $key, 'method' => __FUNCTION__]);
+        $this->log("The key {key} does not exists", 'info', ['key' => $key, 'method' => __FUNCTION__]);
         return $default;
     }
 
@@ -58,7 +58,7 @@ class RedisCache extends AbstractCache
             $value = serialize($value);
         }
         $result = $this->server->set($key, $value, $this->maxTtl($ttl));
-        $this->log("The key {key} is going to save", 'debug', ['key' => $key, 'data' => $value, 'method' => __FUNCTION__, 'result' => intval($result)]);
+        $this->log("The key {key} is going to save", 'info', ['key' => $key, 'data' => $value, 'method' => __FUNCTION__, 'result' => intval($result)]);
         return $result;
     }
 
@@ -72,7 +72,7 @@ class RedisCache extends AbstractCache
             $result = $this->server->unlink($key);
         }
         $result = (isset($result) && $result !== false);
-        $this->log("The key {key} is going to delete", 'debug', ['key' => $key, 'method' => __FUNCTION__, 'result' => intval($result)]);
+        $this->log("The key {key} is going to delete", 'info', ['key' => $key, 'method' => __FUNCTION__, 'result' => intval($result)]);
         return $result;
     }
 
@@ -88,7 +88,7 @@ class RedisCache extends AbstractCache
         }
         $old = $this->server->getSet($key, $value);
         $result = ($old !== $value);
-        $this->log("The key {key} is going to be replaced", 'debug', ['key' => $key, 'old' => $old, 'new' => $value, 'method' => __FUNCTION__, 'result' => intval($result)]);
+        $this->log("The key {key} is going to be replaced", 'info', ['key' => $key, 'data' => ['old' => $old, 'new' => $value], 'method' => __FUNCTION__, 'result' => intval($result)]);
         return $result;
     }
 
