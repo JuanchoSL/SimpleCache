@@ -17,6 +17,16 @@ class SessionCache extends AbstractCache
         if (empty($_SESSION) || !array_key_exists($this->host_name, $_SESSION)) {
             $_SESSION[$this->host_name] = array();
         }
+        if (!isset($_SESSION[$this->host_name])) {
+            $exception = new \Exception("Can not connect to the required server");
+            $this->log($exception, 'error', [
+                'exception' => $exception,
+                'credentials' => [
+                    'host' => $this->host_name
+                ]
+            ]);
+            throw $exception;
+        }
     }
 
     public function get(string $key, mixed $default = null): mixed

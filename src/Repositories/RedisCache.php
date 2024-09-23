@@ -22,10 +22,20 @@ class RedisCache extends AbstractCache
             $this->port = (int) $port;
         } else {
             $this->host = $host;
-            $this->port = self::PORT;
+            $this->port = static::PORT;
         }
         $this->server = new \Redis();
-        $this->server->connect($this->host, $this->port);
+        if (!$this->server->connect($this->host, $this->port)) {
+            $exception = new \Exception("Can not connect to the required server");
+            $this->log($exception, 'error', [
+                'exception' => $exception,
+                'credentials' => [
+                    'host' => $this->host,
+                    'port' => $this->port
+                ]
+            ]);
+            throw $exception;
+        }
         //$this->server = new \Redis(['host' => $this->host, 'port' => (int) $this->port]);
     }
 

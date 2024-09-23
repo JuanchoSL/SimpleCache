@@ -15,7 +15,16 @@ class FileCache extends AbstractCache
     {
         $this->cache_dir = rtrim($host, DIRECTORY_SEPARATOR);
         if (!file_exists($this->cache_dir)) {
-            mkdir($this->cache_dir, 0777, true);
+            if (!mkdir($this->cache_dir, 0777, true)) {
+                $exception = new \Exception("Can not connect to the required server");
+                $this->log($exception, 'error', [
+                    'exception' => $exception,
+                    'credentials' => [
+                        'host' => $this->cache_dir
+                    ]
+                ]);
+                throw $exception;
+            }
         }
     }
 

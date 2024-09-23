@@ -11,18 +11,28 @@ class ProcessCache extends AbstractCache
      * @var array<string, array<string, array<string, mixed>>> $cache
      */
     private static array $cache = [];
-    protected string $host_name = 'session_cache';
+    protected string $host_name = 'process_cache';
 
     public function __construct(string $index)
     {
         $this->host_name = $index;
-        self::$cache[$this->host_name] = array();
+        static::$cache[$this->host_name] = array();
+        if (!isset(static::$cache[$this->host_name])) {
+            $exception = new \Exception("Can not connect to the required server");
+            $this->log($exception, 'error', [
+                'exception' => $exception,
+                'credentials' => [
+                    'host' => $this->host_name
+                ]
+            ]);
+            throw $exception;
+        }
     }
 
     public function get(string $key, mixed $default = null): mixed
     {
-        if (array_key_exists($key, self::$cache[$this->host_name])) {
-            $value = self::$cache[$this->host_name][$key];
+        if (array_key_exists($key, static::$cache[$this->host_name])) {
+            $value = static::$cache[$this->host_name][$key];
             if (isset($value['ttl'], $value['value']) && $value['ttl'] > time()) {
                 return $value['value'];
             }
@@ -36,17 +46,17 @@ class ProcessCache extends AbstractCache
 
     public function set(string $key, mixed $value, \DateInterval|null|int $ttl = null): bool
     {
-        self::$cache[$this->host_name][$key] = array('ttl' => time() + $this->maxTtl($ttl), 'value' => $value);
-        $result = (isset(self::$cache[$this->host_name][$key]));
+        static::$cache[$this->host_name][$key] = array('ttl' => time() + $this->maxTtl($ttl), 'value' => $value);
+        $result = (isset(static::$cache[$this->host_name][$key]));
         $this->log("The key {key} is going to save", 'debug', ['key' => $key, 'data' => $value, 'method' => __FUNCTION__, 'result' => intval($result)]);
         return $result;
     }
 
     public function delete(string $key): bool
     {
-        if (isset(self::$cache[$this->host_name]) && array_key_exists($key, self::$cache[$this->host_name])) {
+        if (isset(static::$cache[$this->host_name]) && array_key_exists($key, static::$cache[$this->host_name])) {
             $this->log("The key {key} is going to delete", 'debug', ['key' => $key, 'method' => __FUNCTION__]);
-            unset(self::$cache[$this->host_name][$key]);
+            unset(static::$cache[$this->host_name][$key]);
             return true;
         }
         return false;
@@ -54,15 +64,15 @@ class ProcessCache extends AbstractCache
 
     public function clear(): bool
     {
-        self::$cache[$this->host_name] = [];
-        return empty(self::$cache[$this->host_name]);
+        static::$cache[$this->host_name] = [];
+        return empty(static::$cache[$this->host_name]);
     }
 
     public function replace(string $key, mixed $value): bool
     {
-        if (array_key_exists($key, self::$cache[$this->host_name])) {
-            $this->log("The key {key} is going to be replaced", 'debug', ['key' => $key, 'old' => self::$cache[$this->host_name][$key]['value'], 'new' => $value, 'method' => __FUNCTION__]);
-            self::$cache[$this->host_name][$key]['value'] = $value;
+        if (array_key_exists($key, static::$cache[$this->host_name])) {
+            $this->log("The key {key} is going to be replaced", 'debug', ['key' => $key, 'old' => static::$cache[$this->host_name][$key]['value'], 'new' => $value, 'method' => __FUNCTION__]);
+            static::$cache[$this->host_name][$key]['value'] = $value;
             return true;
         }
         $this->log("The key {key} does not exists", 'debug', ['key' => $key, 'method' => __FUNCTION__]);
@@ -82,7 +92,7 @@ class ProcessCache extends AbstractCache
      */
     public function getAllKeys(): array
     {
-        return array_keys(self::$cache[$this->host_name]);
+        return array_keys(static::$cache[$this->host_name]);
     }
 
     public function getHost(): string

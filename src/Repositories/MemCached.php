@@ -20,10 +20,20 @@ class MemCached extends AbstractCache
             $this->port = (int) $port;
         } else {
             $this->host = $host;
-            $this->port = self::PORT;
+            $this->port = static::PORT;
         }
         $this->server = new \Memcached();
-        $this->server->addServer($this->host, $this->port);
+        if (!$this->server->addServer($this->host, $this->port)) {
+            $exception = new \Exception("Can not connect to the required server");
+            $this->log($exception, 'error', [
+                'exception' => $exception,
+                'credentials' => [
+                    'host' => $this->host,
+                    'port' => $this->port
+                ]
+            ]);
+            throw $exception;
+        }
         $this->server->setOption(\Memcached::OPT_BINARY_PROTOCOL, false);
     }
 

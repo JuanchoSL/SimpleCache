@@ -20,10 +20,20 @@ class MemCache extends AbstractCache
             $this->port = (int) $port;
         } else {
             $this->host = $host;
-            $this->port = self::PORT;
+            $this->port = static::PORT;
         }
         $this->server = new \Memcache();
-        $this->server->connect($this->host, $this->port);
+        if (!$this->server->connect($this->host, $this->port)) {
+            $exception = new \Exception("Can not connect to the required server");
+            $this->log($exception, 'error', [
+                'exception' => $exception,
+                'credentials' => [
+                    'host' => $this->host,
+                    'port' => $this->port
+                ]
+            ]);
+            throw $exception;
+        }
     }
 
     public function set(string $key, mixed $value, \DateInterval|null|int $ttl = null): bool
