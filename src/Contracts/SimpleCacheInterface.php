@@ -49,4 +49,10 @@ interface SimpleCacheInterface extends CacheInterface
      */
     public function decrement(string $key, int|float $decrement = 1, \DateInterval|null|int $ttl = null): int|float|bool;
 
+    /**
+     * set the max TTL when is not specified on setters methods
+     * @param \DateInterval|int $ttl Can be an integer (seconds from now) or a DateInterval instance
+     * @return SimpleCacheInterface
+     */
+    public function setMaxTtl(\DateInterval|int $ttl): static;
 }

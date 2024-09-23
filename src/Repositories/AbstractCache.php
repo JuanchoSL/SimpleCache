@@ -10,7 +10,7 @@ use Psr\Log\LoggerAwareTrait;
 abstract class AbstractCache implements SimpleCacheInterface
 {
 
-    use CommonTrait, LoggerAwareTrait;
+    use LoggerAwareTrait;
 
     protected bool $debug = false;
 
