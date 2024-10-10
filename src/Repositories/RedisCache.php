@@ -3,11 +3,12 @@
 declare(strict_types=1);
 
 namespace JuanchoSL\SimpleCache\Repositories;
+use JuanchoSL\Validators\Types\Strings\StringValidations;
 
 class RedisCache extends AbstractCache
 {
 
-    use SerializeTrait, CommonTrait;
+    use CommonTrait;
 
     private \Redis $server;
     private string $host;
@@ -43,7 +44,8 @@ class RedisCache extends AbstractCache
     {
         if ($this->server->exists($key)) {
             $value = $this->server->get($key);
-            if (!empty($value) && is_string($value) && $this->isSerialized($value)) {
+            if ((new StringValidations)->is()->isNotEmpty()->isSerialized()->getResult($value)) {
+            //if (!empty($value) && is_string($value) && $this->isSerialized($value)) {
                 $value = unserialize($value);
             }
             return $value;

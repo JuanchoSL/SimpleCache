@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace JuanchoSL\SimpleCache\Repositories;
 
+use JuanchoSL\Validators\Types\Integers\IntegerValidation;
+use JuanchoSL\Validators\Types\Strings\StringValidations;
+
 class FileCache extends AbstractCache
 {
 
-    use SerializeTrait, CommonTrait;
+    use CommonTrait;
 
     protected string $cache_dir;
 
@@ -38,12 +41,13 @@ class FileCache extends AbstractCache
             $data = file_get_contents($cache_file);
             if (!empty($data)) {
                 $data_unserialized = (array) unserialize($data);
-                if (isset($data_unserialized['ttl'], $data_unserialized['data']) && is_int($data_unserialized['ttl'])) {
+                if (isset($data_unserialized['ttl'], $data_unserialized['data']) && IntegerValidation::is($data_unserialized['ttl'])) {
                     $response = [
                         'ttl' => $data_unserialized['ttl'],
                         'data' => $data_unserialized['data']
                     ];
-                    if (is_string($data_unserialized['data']) && $this->isSerialized($data_unserialized['data'])) {
+                    //if (is_string($data_unserialized['data']) && $this->isSerialized($data_unserialized['data'])) {
+                    if ((new StringValidations)->is()->isNotEmpty()->isSerialized()->getResult($data_unserialized['data'])) {
                         $response['data'] = unserialize($data_unserialized['data']);
                     }
                     return $response;
@@ -68,7 +72,7 @@ class FileCache extends AbstractCache
         $cache_file = $this->cache_dir . DIRECTORY_SEPARATOR . $key;
         if (file_exists($cache_file)) {
             $data = $this->getContents($key);
-            if (is_array($data) && (int) $data['ttl'] > time()) {
+            if (is_array($data) && IntegerValidation::isValueGreatherThan($data['ttl'], time())) {
                 return $data['data'];
             }
             $this->log("The key {key} is not valid", 'info', ['key' => $key, 'data' => $data, 'method' => __FUNCTION__]);

@@ -4,8 +4,58 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0a0146dcd7536a3ba59da736810fe9ee",
+    "content-hash": "d0ee703278509ebdbb2fdfed04b25cdd",
     "packages": [
+        {
+            "name": "juanchosl/validators",
+            "version": "dev-develop",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/JuanchoSL/Validators.git",
+                "reference": "2097b2b9aef56194c151bd06519c0cd417f53b7f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/JuanchoSL/Validators/zipball/2097b2b9aef56194c151bd06519c0cd417f53b7f",
+                "reference": "2097b2b9aef56194c151bd06519c0cd417f53b7f",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "php": "^7.1 || ^8.0"
+            },
+            "require-dev": {
+                "phpstan/phpstan": "1.10.*",
+                "phpunit/phpunit": "9.6.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "JuanchoSL\\Validators\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Juan Sánchez Lecegui",
+                    "email": "JuanchoSL@hotmail.com",
+                    "homepage": "https://github.com/JuanchoSL/"
+                }
+            ],
+            "description": "Little methods collection in order to validate variables contents",
+            "homepage": "https://github.com/JuanchoSL/Validators",
+            "keywords": [
+                "debug",
+                "log"
+            ],
+            "support": {
+                "source": "https://github.com/JuanchoSL/Validators/tree/develop"
+            },
+            "time": "2024-10-10T19:33:07+00:00"
+        },
         {
             "name": "psr/cache",
             "version": "3.0.0",
@@ -342,16 +392,16 @@
         },
         {
             "name": "nikic/php-parser",
-            "version": "v5.2.0",
+            "version": "v5.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nikic/PHP-Parser.git",
-                "reference": "23c79fbbfb725fb92af9bcf41065c8e9a0d49ddb"
+                "reference": "8eea230464783aa9671db8eea6f8c6ac5285794b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/23c79fbbfb725fb92af9bcf41065c8e9a0d49ddb",
-                "reference": "23c79fbbfb725fb92af9bcf41065c8e9a0d49ddb",
+                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/8eea230464783aa9671db8eea6f8c6ac5285794b",
+                "reference": "8eea230464783aa9671db8eea6f8c6ac5285794b",
                 "shasum": ""
             },
             "require": {
@@ -394,9 +444,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nikic/PHP-Parser/issues",
-                "source": "https://github.com/nikic/PHP-Parser/tree/v5.2.0"
+                "source": "https://github.com/nikic/PHP-Parser/tree/v5.3.1"
             },
-            "time": "2024-09-15T16:40:33+00:00"
+            "time": "2024-10-08T18:51:32+00:00"
         },
         {
             "name": "phar-io/manifest",
@@ -2013,6 +2063,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "juanchosl/validators": 20,
         "juanchosl/logger": 20
     },
     "prefer-stable": false,
