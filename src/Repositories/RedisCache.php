@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 namespace JuanchoSL\SimpleCache\Repositories;
+use JuanchoSL\Exceptions\PreconditionRequiredException;
 use JuanchoSL\Validators\Types\Strings\StringValidations;
 
 class RedisCache extends AbstractCache
@@ -18,6 +19,9 @@ class RedisCache extends AbstractCache
 
     public function __construct(string $host)
     {
+        if (!extension_loaded('redis')) {
+            throw new PreconditionRequiredException("The extension Redis is not available");
+        }
         if (strpos($host, ':') !== false) {
             list($this->host, $port) = explode(':', $host);
             $this->port = (int) $port;

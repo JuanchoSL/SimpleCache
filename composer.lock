@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d0ee703278509ebdbb2fdfed04b25cdd",
+    "content-hash": "dfe0eecdf036e666e19804d7a7bbbbef",
     "packages": [
         {
             "name": "juanchosl/validators",
-            "version": "dev-develop",
+            "version": "1.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/JuanchoSL/Validators.git",
-                "reference": "2097b2b9aef56194c151bd06519c0cd417f53b7f"
+                "reference": "4ab74622bbab16b090483f738bc3a74530c08dd6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/JuanchoSL/Validators/zipball/2097b2b9aef56194c151bd06519c0cd417f53b7f",
-                "reference": "2097b2b9aef56194c151bd06519c0cd417f53b7f",
+                "url": "https://api.github.com/repos/JuanchoSL/Validators/zipball/4ab74622bbab16b090483f738bc3a74530c08dd6",
+                "reference": "4ab74622bbab16b090483f738bc3a74530c08dd6",
                 "shasum": ""
             },
             "require": {
@@ -52,9 +52,9 @@
                 "log"
             ],
             "support": {
-                "source": "https://github.com/JuanchoSL/Validators/tree/develop"
+                "source": "https://github.com/JuanchoSL/Validators/tree/1.0.3"
             },
-            "time": "2024-10-10T19:33:07+00:00"
+            "time": "2024-10-14T18:42:29+00:00"
         },
         {
             "name": "psr/cache",
@@ -2063,7 +2063,6 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "juanchosl/validators": 20,
         "juanchosl/logger": 20
     },
     "prefer-stable": false,

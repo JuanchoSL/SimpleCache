@@ -59,7 +59,7 @@ class SimpleCacheTest extends TestCase
      */
     public function testSet($cache)
     {
-        $name = str_replace('\\', '-', get_class($cache));
+        $name = str_replace('\\', '_', get_class($cache));
         $interval = DateInterval::createFromDateString("+{$this->ttl} seconds");
         $result = $cache->set("{$name}.key", $this->value_plain, $interval);
         //$result = $cache->set("{$name}.key", $this->value_plain, $this->ttl);
@@ -72,7 +72,7 @@ class SimpleCacheTest extends TestCase
      */
     public function testGetOk($cache)
     {
-        $name = str_replace('\\', '-', get_class($cache));
+        $name = str_replace('\\', '_', get_class($cache));
         $interval = DateInterval::createFromDateString("+{$this->ttl} seconds");
         $result = $cache->set("{$name}.key", $this->value_plain, $interval);
         //$result = $cache->set("{$name}.key", $this->value_plain, $this->ttl);
@@ -87,7 +87,7 @@ class SimpleCacheTest extends TestCase
      */
     public function testGetKo($cache)
     {
-        $name = str_replace('\\', '-', get_class($cache));
+        $name = str_replace('\\', '_', get_class($cache));
         $interval = DateInterval::createFromDateString("+{$this->ttl} seconds");
         $result = $cache->set("{$name}.key", $this->value_plain, $interval);
         //$result = $cache->set("{$name}.key", $this->value_plain, $this->ttl);
@@ -103,7 +103,7 @@ class SimpleCacheTest extends TestCase
      */
     public function testDelete($cache)
     {
-        $name = str_replace('\\', '-', get_class($cache));
+        $name = str_replace('\\', '_', get_class($cache));
         $result = $cache->set("{$name}.key", $this->value_plain, $this->ttl);
         $this->assertTrue($result);
         $read_ok = $cache->get("{$name}.key");
@@ -121,7 +121,7 @@ class SimpleCacheTest extends TestCase
      */
     public function testSetArray($cache)
     {
-        $name = str_replace('\\', '-', get_class($cache));
+        $name = str_replace('\\', '_', get_class($cache));
         $result = $cache->set("{$name}.array", ['key' => 'value'], $this->ttl);
         $this->assertTrue($result);
         $results = $cache->get("{$name}.array");
@@ -137,7 +137,7 @@ class SimpleCacheTest extends TestCase
      */
     public function testSetObject($cache)
     {
-        $name = str_replace('\\', '-', get_class($cache));
+        $name = str_replace('\\', '_', get_class($cache));
         $obj = new \stdClass;
         $obj->key = 'value';
         $result = $cache->set("{$name}.object", $obj, $this->ttl);

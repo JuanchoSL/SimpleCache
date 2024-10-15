@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 namespace JuanchoSL\SimpleCache\Repositories;
+use JuanchoSL\Exceptions\PreconditionRequiredException;
 
 class MemCache extends AbstractCache
 {
@@ -15,6 +16,9 @@ class MemCache extends AbstractCache
 
     public function __construct(string $host)
     {
+        if (!extension_loaded('memcache')) {
+            throw new PreconditionRequiredException("The extension Memcache is not available");
+        }
         if (strpos($host, ':') !== false) {
             list($this->host, $port) = explode(':', $host);
             $this->port = (int) $port;
