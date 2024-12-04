@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dfe0eecdf036e666e19804d7a7bbbbef",
+    "content-hash": "7e47316ac544a73e56f2b68de1cb0c75",
     "packages": [
         {
             "name": "juanchosl/validators",
-            "version": "1.0.3",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/JuanchoSL/Validators.git",
-                "reference": "4ab74622bbab16b090483f738bc3a74530c08dd6"
+                "reference": "e5522a2f59d531266b7276e12f7429b53cc8fa14"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/JuanchoSL/Validators/zipball/4ab74622bbab16b090483f738bc3a74530c08dd6",
-                "reference": "4ab74622bbab16b090483f738bc3a74530c08dd6",
+                "url": "https://api.github.com/repos/JuanchoSL/Validators/zipball/e5522a2f59d531266b7276e12f7429b53cc8fa14",
+                "reference": "e5522a2f59d531266b7276e12f7429b53cc8fa14",
                 "shasum": ""
             },
             "require": {
@@ -25,9 +25,10 @@
                 "php": "^7.1 || ^8.0"
             },
             "require-dev": {
-                "phpstan/phpstan": "1.10.*",
+                "phpstan/phpstan": "1.12.*",
                 "phpunit/phpunit": "9.6.*"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -52,9 +53,9 @@
                 "log"
             ],
             "support": {
-                "source": "https://github.com/JuanchoSL/Validators/tree/1.0.3"
+                "source": "https://github.com/JuanchoSL/Validators/tree/master"
             },
-            "time": "2024-10-14T18:42:29+00:00"
+            "time": "2024-12-04T19:08:00+00:00"
         },
         {
             "name": "psr/cache",
@@ -284,12 +285,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/JuanchoSL/Logger.git",
-                "reference": "3b5045ddc64416529bf1d46d1d90ef40ff44d155"
+                "reference": "a9b2fc85d5ae611c8a71a6593e506f6f58a9a563"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/JuanchoSL/Logger/zipball/3b5045ddc64416529bf1d46d1d90ef40ff44d155",
-                "reference": "3b5045ddc64416529bf1d46d1d90ef40ff44d155",
+                "url": "https://api.github.com/repos/JuanchoSL/Logger/zipball/a9b2fc85d5ae611c8a71a6593e506f6f58a9a563",
+                "reference": "a9b2fc85d5ae611c8a71a6593e506f6f58a9a563",
                 "shasum": ""
             },
             "require": {
@@ -299,8 +300,7 @@
                 "psr/log": "3.0.*"
             },
             "require-dev": {
-                "phpstan/phpstan": "1.10.*",
-                "phpunit/phpunit": "9.5.25"
+                "phpunit/phpunit": "9.6.*"
             },
             "type": "library",
             "autoload": {
@@ -328,20 +328,20 @@
             "support": {
                 "source": "https://github.com/JuanchoSL/Logger/tree/develop"
             },
-            "time": "2024-09-21T01:13:37+00:00"
+            "time": "2024-12-04T20:42:13+00:00"
         },
         {
             "name": "myclabs/deep-copy",
-            "version": "1.12.0",
+            "version": "1.12.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/myclabs/DeepCopy.git",
-                "reference": "3a6b9a42cd8f8771bd4295d13e1423fa7f3d942c"
+                "reference": "123267b2c49fbf30d78a7b2d333f6be754b94845"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/3a6b9a42cd8f8771bd4295d13e1423fa7f3d942c",
-                "reference": "3a6b9a42cd8f8771bd4295d13e1423fa7f3d942c",
+                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/123267b2c49fbf30d78a7b2d333f6be754b94845",
+                "reference": "123267b2c49fbf30d78a7b2d333f6be754b94845",
                 "shasum": ""
             },
             "require": {
@@ -380,7 +380,7 @@
             ],
             "support": {
                 "issues": "https://github.com/myclabs/DeepCopy/issues",
-                "source": "https://github.com/myclabs/DeepCopy/tree/1.12.0"
+                "source": "https://github.com/myclabs/DeepCopy/tree/1.12.1"
             },
             "funding": [
                 {
@@ -388,7 +388,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-06-12T14:39:25+00:00"
+            "time": "2024-11-08T17:47:46+00:00"
         },
         {
             "name": "nikic/php-parser",
@@ -568,16 +568,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "1.10.67",
+            "version": "1.12.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "16ddbe776f10da6a95ebd25de7c1dbed397dc493"
+                "reference": "b5ae1b88f471d3fd4ba1aa0046234b5ca3776dd0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/16ddbe776f10da6a95ebd25de7c1dbed397dc493",
-                "reference": "16ddbe776f10da6a95ebd25de7c1dbed397dc493",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/b5ae1b88f471d3fd4ba1aa0046234b5ca3776dd0",
+                "reference": "b5ae1b88f471d3fd4ba1aa0046234b5ca3776dd0",
                 "shasum": ""
             },
             "require": {
@@ -622,7 +622,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-04-16T07:22:02+00:00"
+            "time": "2024-11-28T22:13:23+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -2063,13 +2063,14 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "juanchosl/logger": 20
+        "juanchosl/logger": 20,
+        "juanchosl/validators": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
         "php": "^7.2 || ^8.0"
     },
-    "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "platform-dev": {},
+    "plugin-api-version": "2.6.0"
 }

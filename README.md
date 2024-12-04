@@ -64,10 +64,10 @@ $result = $cache->decrement(string $cache_key, int $numeric_decrement, int $stat
 #### Create a cache instance
 ```php
 use JuanchoSL\SimpleCache\Repositories\ProcessCache;
-use JuanchoSL\SimpleCache\Adapters\SimpleCacheAdapter;
+use JuanchoSL\SimpleCache\Adapters\PsrSimpleCacheAdapter;
 
 $lib = new ProcessCache($_ENV['CACHE_ENVIRONMENT']);
-$cache = new SimpleCacheAdapter($lib);
+$cache = new PsrSimpleCacheAdapter($lib);
 ```
 #### write a cache index
 The max time to expire is 30 days if you do not set a time
