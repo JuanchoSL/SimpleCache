@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace JuanchoSL\SimpleCache\Repositories;
 
+use JuanchoSL\Validators\Types\Integers\IntegerValidation;
+use JuanchoSL\Validators\Types\Strings\StringValidations;
+
 class FileCache extends AbstractCache
 {
 
-    use SerializeTrait, CommonTrait;
+    use CommonTrait;
 
     protected string $cache_dir;
 
@@ -15,7 +18,16 @@ class FileCache extends AbstractCache
     {
         $this->cache_dir = rtrim($host, DIRECTORY_SEPARATOR);
         if (!file_exists($this->cache_dir)) {
-            mkdir($this->cache_dir, 0777, true);
+            if (!mkdir($this->cache_dir, 0777, true)) {
+                $exception = new \Exception("Can not connect to the required server");
+                $this->log($exception, 'error', [
+                    'exception' => $exception,
+                    'credentials' => [
+                        'host' => $this->cache_dir
+                    ]
+                ]);
+                throw $exception;
+            }
         }
     }
 
@@ -29,12 +41,13 @@ class FileCache extends AbstractCache
             $data = file_get_contents($cache_file);
             if (!empty($data)) {
                 $data_unserialized = (array) unserialize($data);
-                if (isset($data_unserialized['ttl'], $data_unserialized['data']) && is_int($data_unserialized['ttl'])) {
+                if (isset($data_unserialized['ttl'], $data_unserialized['data']) && IntegerValidation::is($data_unserialized['ttl'])) {
                     $response = [
                         'ttl' => $data_unserialized['ttl'],
                         'data' => $data_unserialized['data']
                     ];
-                    if (is_string($data_unserialized['data']) && $this->isSerialized($data_unserialized['data'])) {
+                    //if (is_string($data_unserialized['data']) && $this->isSerialized($data_unserialized['data'])) {
+                    if ((new StringValidations)->is()->isNotEmpty()->isSerialized()->getResult($data_unserialized['data'])) {
                         $response['data'] = unserialize($data_unserialized['data']);
                     }
                     return $response;
@@ -59,10 +72,13 @@ class FileCache extends AbstractCache
         $cache_file = $this->cache_dir . DIRECTORY_SEPARATOR . $key;
         if (file_exists($cache_file)) {
             $data = $this->getContents($key);
-            if (is_array($data) && (int) $data['ttl'] > time()) {
+            if (is_array($data) && IntegerValidation::isValueGreatherThan($data['ttl'], time())) {
                 return $data['data'];
             }
+            $this->log("The key {key} is not valid", 'info', ['key' => $key, 'data' => $data, 'method' => __FUNCTION__]);
             $this->delete($key);
+        } else {
+            $this->log("The file {cache_file} does not exists", 'info', ['cache_file' => $cache_file, 'method' => __FUNCTION__]);
         }
         return $default;
     }
@@ -73,13 +89,17 @@ class FileCache extends AbstractCache
             $value = serialize($value);
         }
         $value = ['ttl' => time() + $this->maxTtl($ttl), 'data' => $value];
-        return $this->putContents($key, $value);
+        $result = $this->putContents($key, $value);
+        $this->log("The key {key} is going to save", 'info', ['key' => $key, 'data' => $value, 'method' => __FUNCTION__, 'result' => intval($result)]);
+        return $result;
     }
 
     public function delete(string $key): bool
     {
         $cache_file = $this->cache_dir . DIRECTORY_SEPARATOR . $key;
-        return unlink($cache_file);
+        $result = unlink($cache_file);
+        $this->log("The file {key} is going to delete", 'info', ['key' => $cache_file, 'method' => __FUNCTION__, 'result' => intval($result)]);
+        return $result;
     }
 
     public function clear(): bool
@@ -99,9 +119,10 @@ class FileCache extends AbstractCache
                 $value = serialize($value);
             }
             $value = ['ttl' => $data['ttl'], 'data' => $value];
-            return $this->putContents($key, $value);
+            $result = $this->putContents($key, $value);
+            $this->log("The key {key} is going to be replaced", 'info', ['key' => $key, 'data' => ['old' => $data['data'], 'new' => $value], 'method' => __FUNCTION__, 'result' => intval($result)]);
+            return $result;
         }
-
         return false;
     }
 

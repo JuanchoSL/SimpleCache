@@ -3,11 +3,13 @@
 declare(strict_types=1);
 
 namespace JuanchoSL\SimpleCache\Repositories;
+use JuanchoSL\Exceptions\PreconditionRequiredException;
+use JuanchoSL\Validators\Types\Strings\StringValidations;
 
 class RedisCache extends AbstractCache
 {
 
-    use SerializeTrait, CommonTrait;
+    use CommonTrait;
 
     private \Redis $server;
     private string $host;
@@ -17,15 +19,28 @@ class RedisCache extends AbstractCache
 
     public function __construct(string $host)
     {
+        if (!extension_loaded('redis')) {
+            throw new PreconditionRequiredException("The extension Redis is not available");
+        }
         if (strpos($host, ':') !== false) {
             list($this->host, $port) = explode(':', $host);
             $this->port = (int) $port;
         } else {
             $this->host = $host;
-            $this->port = self::PORT;
+            $this->port = static::PORT;
         }
         $this->server = new \Redis();
-        $this->server->connect($this->host, $this->port);
+        if (!$this->server->connect($this->host, $this->port)) {
+            $exception = new \Exception("Can not connect to the required server");
+            $this->log($exception, 'error', [
+                'exception' => $exception,
+                'credentials' => [
+                    'host' => $this->host,
+                    'port' => $this->port
+                ]
+            ]);
+            throw $exception;
+        }
         //$this->server = new \Redis(['host' => $this->host, 'port' => (int) $this->port]);
     }
 
@@ -33,11 +48,13 @@ class RedisCache extends AbstractCache
     {
         if ($this->server->exists($key)) {
             $value = $this->server->get($key);
-            if (!empty($value) && is_string($value) && $this->isSerialized($value)) {
+            if ((new StringValidations)->is()->isNotEmpty()->isSerialized()->getResult($value)) {
+            //if (!empty($value) && is_string($value) && $this->isSerialized($value)) {
                 $value = unserialize($value);
             }
             return $value;
         }
+        $this->log("The key {key} does not exists", 'info', ['key' => $key, 'method' => __FUNCTION__]);
         return $default;
     }
 
@@ -46,7 +63,9 @@ class RedisCache extends AbstractCache
         if (is_object($value) || is_array($value)) {
             $value = serialize($value);
         }
-        return $this->server->set($key, $value, $this->maxTtl($ttl));
+        $result = $this->server->set($key, $value, $this->maxTtl($ttl));
+        $this->log("The key {key} is going to save", 'info', ['key' => $key, 'data' => $value, 'method' => __FUNCTION__, 'result' => intval($result)]);
+        return $result;
     }
 
     public function delete(string $key): bool
@@ -58,7 +77,9 @@ class RedisCache extends AbstractCache
         } elseif (method_exists($this->server, 'unlink')) {
             $result = $this->server->unlink($key);
         }
-        return (isset($result) && $result !== false);
+        $result = (isset($result) && $result !== false);
+        $this->log("The key {key} is going to delete", 'info', ['key' => $key, 'method' => __FUNCTION__, 'result' => intval($result)]);
+        return $result;
     }
 
     public function clear(): bool
@@ -72,7 +93,9 @@ class RedisCache extends AbstractCache
             $value = serialize($value);
         }
         $old = $this->server->getSet($key, $value);
-        return ($old !== $value);
+        $result = ($old !== $value);
+        $this->log("The key {key} is going to be replaced", 'info', ['key' => $key, 'data' => ['old' => $old, 'new' => $value], 'method' => __FUNCTION__, 'result' => intval($result)]);
+        return $result;
     }
 
     public function touch(string $key, \DateInterval|null|int $ttl): bool

@@ -6,6 +6,9 @@ use JuanchoSL\SimpleCache\Enums\Engines;
 
 class Credentials
 {
+
+    const GIT_MODE = true;
+
     public static function getHost(Engines $type): string
     {
         return match ($type) {

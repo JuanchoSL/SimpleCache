@@ -25,11 +25,15 @@
     ],
     "require": {
         "php": "^7.2 || ^8.0",
-        "psr/simple-cache": "3.0.*"
+        "psr/log": "3.0.*",
+        "psr/simple-cache": "3.0.*",
+        "psr/cache": "3.0.*",
+        "juanchosl/validators": "dev-master"
     },
     "require-dev": {
-        "phpunit/phpunit": "9.*",
-        "phpstan/phpstan": "1.10.*"
+        "juanchosl/logger": "dev-develop",
+        "phpunit/phpunit": "9.6.*",
+        "phpstan/phpstan": "1.12.*"
     },
     "autoload": {
         "psr-4": {

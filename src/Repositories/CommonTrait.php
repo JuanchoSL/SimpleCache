@@ -8,7 +8,7 @@ trait CommonTrait
 {
     protected int $maxttl = 3600 * 24 * 30;
 
-    public function setMaxTtl(\DateInterval|int $ttl): self
+    public function setMaxTtl(\DateInterval|int $ttl): static
     {
         if (empty($ttl)) {
             $ttl = 0;
