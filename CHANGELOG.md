@@ -1,19 +1,33 @@
 # Change Simple Cache
 
 
+## [1.0.4] - 2024-12-04
+
+### Added
+- LoggerAwwaitinterface in order to log debugs or any info from functions
+- Throws exceptions on connection error
+- setMaxTtl to library interface in order to be able to set the max time to live
+- check for required modules before try to connect
+- check PHP 8.4 compatibility
+
+### Changed
+- composer update
+
+### Fixed
+- Modify test-keys in order to enable test from Memcache and Memcached drivers
+- PsrSimpleCacheAdapter check if key is a valid value or throw exception
+
+
 ## [1.0.3] - 2024-06-20
 
 ### Added
-
 - Engine Enums
 - Factory using Engine enums
 
 ### Changed
-
 - Clean Unit tests using data providers
 
 ### Fixed
-
 - clear method for Session and Process caches, remove all keys but not deleted the master repository
 
 
