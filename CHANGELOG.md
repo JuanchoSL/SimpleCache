@@ -1,7 +1,7 @@
 # Change Simple Cache
 
 
-## [1.0.4] - 2024-12-04
+## [1.0.4] - 2024-12-12
 
 ### Added
 - LoggerAwwaitinterface in order to log debugs or any info from functions
@@ -16,7 +16,7 @@
 ### Fixed
 - Modify test-keys in order to enable test from Memcache and Memcached drivers
 - PsrSimpleCacheAdapter check if key is a valid value or throw exception
-
+- Fix composer require for Exceptions
 
 ## [1.0.3] - 2024-06-20
 
