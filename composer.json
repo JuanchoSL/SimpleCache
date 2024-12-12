@@ -32,7 +32,7 @@
         "juanchosl/exceptions": "dev-master"
     },
     "require-dev": {
-        "juanchosl/logger": "dev-develop",
+        "juanchosl/logger": "dev-master",
         "phpunit/phpunit": "9.6.*",
         "phpstan/phpstan": "1.12.*"
     },
