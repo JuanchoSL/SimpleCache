@@ -28,11 +28,11 @@
         "psr/log": "3.0.*",
         "psr/simple-cache": "3.0.*",
         "psr/cache": "3.0.*",
-        "juanchosl/validators": "dev-master",
-        "juanchosl/exceptions": "dev-master"
+        "juanchosl/validators": "1.0.*",
+        "juanchosl/exceptions": "1.0.*"
     },
     "require-dev": {
-        "juanchosl/logger": "dev-master",
+        "juanchosl/logger": "1.1.*",
         "phpunit/phpunit": "9.6.*",
         "phpstan/phpstan": "1.12.*"
     },
