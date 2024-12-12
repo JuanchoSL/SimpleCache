@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "158f92d39513464f9f5084e0eff6a077",
+    "content-hash": "a93e76961ef434920f19c0939cbe9bef",
     "packages": [
         {
             "name": "juanchosl/exceptions",
@@ -383,16 +383,16 @@
         },
         {
             "name": "juanchosl/logger",
-            "version": "dev-develop",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/JuanchoSL/Logger.git",
-                "reference": "3011a8be7b8444e66750e32666acadf2aa4fd46b"
+                "reference": "ed5e563b993b661184b41adf144329948348b673"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/JuanchoSL/Logger/zipball/3011a8be7b8444e66750e32666acadf2aa4fd46b",
-                "reference": "3011a8be7b8444e66750e32666acadf2aa4fd46b",
+                "url": "https://api.github.com/repos/JuanchoSL/Logger/zipball/ed5e563b993b661184b41adf144329948348b673",
+                "reference": "ed5e563b993b661184b41adf144329948348b673",
                 "shasum": ""
             },
             "require": {
@@ -428,9 +428,9 @@
                 "log"
             ],
             "support": {
-                "source": "https://github.com/JuanchoSL/Logger/tree/develop"
+                "source": "https://github.com/JuanchoSL/Logger/tree/master"
             },
-            "time": "2024-12-12T18:43:38+00:00"
+            "time": "2024-12-12T20:46:29+00:00"
         },
         {
             "name": "myclabs/deep-copy",
