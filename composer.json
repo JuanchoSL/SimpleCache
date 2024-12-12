@@ -28,7 +28,8 @@
         "psr/log": "3.0.*",
         "psr/simple-cache": "3.0.*",
         "psr/cache": "3.0.*",
-        "juanchosl/validators": "dev-master"
+        "juanchosl/validators": "dev-master",
+        "juanchosl/exceptions": "dev-master"
     },
     "require-dev": {
         "juanchosl/logger": "dev-develop",
