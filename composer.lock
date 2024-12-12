@@ -4,11 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a93e76961ef434920f19c0939cbe9bef",
+    "content-hash": "e67f9c3fdaa5fc4e9af474d41903e6e9",
     "packages": [
         {
             "name": "juanchosl/exceptions",
-            "version": "dev-master",
+            "version": "1.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/JuanchoSL/Exceptions.git",
@@ -27,7 +27,6 @@
             "require-dev": {
                 "phpunit/phpunit": "9.5.25"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -110,7 +109,7 @@
         },
         {
             "name": "juanchosl/validators",
-            "version": "dev-master",
+            "version": "1.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/JuanchoSL/Validators.git",
@@ -130,7 +129,6 @@
                 "phpstan/phpstan": "1.12.*",
                 "phpunit/phpunit": "9.6.*"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -383,16 +381,16 @@
         },
         {
             "name": "juanchosl/logger",
-            "version": "dev-master",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/JuanchoSL/Logger.git",
-                "reference": "ed5e563b993b661184b41adf144329948348b673"
+                "reference": "ab9282acaa02dec17c1208b60d3947dade6090ae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/JuanchoSL/Logger/zipball/ed5e563b993b661184b41adf144329948348b673",
-                "reference": "ed5e563b993b661184b41adf144329948348b673",
+                "url": "https://api.github.com/repos/JuanchoSL/Logger/zipball/ab9282acaa02dec17c1208b60d3947dade6090ae",
+                "reference": "ab9282acaa02dec17c1208b60d3947dade6090ae",
                 "shasum": ""
             },
             "require": {
@@ -428,9 +426,9 @@
                 "log"
             ],
             "support": {
-                "source": "https://github.com/JuanchoSL/Logger/tree/master"
+                "source": "https://github.com/JuanchoSL/Logger/tree/1.1.0"
             },
-            "time": "2024-12-12T20:46:29+00:00"
+            "time": "2024-12-12T20:40:20+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -2164,11 +2162,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "juanchosl/exceptions": 20,
-        "juanchosl/logger": 20,
-        "juanchosl/validators": 20
-    },
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
