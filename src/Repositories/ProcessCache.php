@@ -1,12 +1,12 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace JuanchoSL\SimpleCache\Repositories;
 
+use JuanchoSL\Exceptions\DestinationUnreachableException;
+
 class ProcessCache extends AbstractCache
 {
-    use CommonTrait;
+
     /**
      * @var array<string, array<string, array<string, mixed>>> $cache
      */
@@ -18,7 +18,7 @@ class ProcessCache extends AbstractCache
         $this->host_name = $index;
         static::$cache[$this->host_name] = array();
         if (!isset(static::$cache[$this->host_name])) {
-            $exception = new \Exception("Can not connect to the required server");
+            $exception = new DestinationUnreachableException("Can not connect to the required destiny");
             $this->log($exception, 'error', [
                 'exception' => $exception,
                 'credentials' => [
@@ -128,5 +128,14 @@ class ProcessCache extends AbstractCache
             }
         }
         return false;
+    }
+
+    public function deleteMultiple(iterable $keys): bool
+    {
+        $result = array_diff_key(static::$cache[$this->host_name], array_fill_keys($keys, null));
+        $counter = count(static::$cache[$this->host_name]) - count($result);
+        $this->log("Some keys are going to be deleted", 'info', ['keys' => $keys, 'method' => __FUNCTION__, 'result' => $counter]);
+        static::$cache[$this->host_name] = $result;
+        return $counter == count($keys);
     }
 }

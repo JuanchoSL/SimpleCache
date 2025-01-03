@@ -1,13 +1,13 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace JuanchoSL\SimpleCache\Repositories;
-use JuanchoSL\Exceptions\PreconditionRequiredException;
+
+use JuanchoSL\Exceptions\DestinationUnreachableException;
+use JuanchoSL\Exceptions\ServiceUnavailableException;
 
 class MemCache extends AbstractCache
 {
-    use CommonTrait;
+
     private \Memcache $server;
     private string $host;
     private int $port;
@@ -17,7 +17,7 @@ class MemCache extends AbstractCache
     public function __construct(string $host)
     {
         if (!extension_loaded('memcache')) {
-            throw new PreconditionRequiredException("The extension Memcache is not available");
+            throw new ServiceUnavailableException("The extension Memcache is not available");
         }
         if (strpos($host, ':') !== false) {
             list($this->host, $port) = explode(':', $host);
@@ -28,7 +28,7 @@ class MemCache extends AbstractCache
         }
         $this->server = new \Memcache();
         if (!$this->server->connect($this->host, $this->port)) {
-            $exception = new \Exception("Can not connect to the required server");
+            $exception = new DestinationUnreachableException("Can not connect to the required destiny");
             $this->log($exception, 'error', [
                 'exception' => $exception,
                 'credentials' => [

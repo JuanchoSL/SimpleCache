@@ -3,6 +3,7 @@
 namespace JuanchoSL\SimpleCache\Tests\Functional;
 
 use DateInterval;
+use JuanchoSL\Exceptions\PreconditionFailedException;
 use JuanchoSL\SimpleCache\Adapters\PsrSimpleCacheAdapter;
 use JuanchoSL\SimpleCache\Enums\Engines;
 use JuanchoSL\SimpleCache\Factories\EngineFactory;
@@ -180,5 +181,34 @@ class SimpleCacheTest extends TestCase
         $keys = ["a", "b", "c"];
         $this->assertTrue($cache->deleteMultiple($keys));
         $cache->clear();
+    }
+
+    /**
+     * @dataProvider providerLoginData
+     */
+    public function testInvalidKey($cache)
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $cache->set("algo@", 'some data', 1);
+    }
+    /**
+     * @dataProvider providerLoginData
+     */
+    public function testValidKey($cache)
+    {
+        $cache->setExtraChars('@');
+        //echo $cache->getPattern();exit;
+        $cache->set("algo@", 'some data', 10);
+        $result = $cache->get("algo@");
+        $this->assertEquals('some data', $result);
+    }
+
+    /**
+     * @dataProvider providerLoginData
+     */
+    public function testInvalidKeyLenght($cache)
+    {
+        $this->expectException(PreconditionFailedException::class);
+        $cache->setMaxKeyLenght(25);
     }
 }
