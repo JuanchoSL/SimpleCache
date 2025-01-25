@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace JuanchoSL\SimpleCache\Repositories;
 
@@ -10,7 +8,7 @@ use Psr\Log\LoggerAwareTrait;
 abstract class AbstractCache implements SimpleCacheInterface
 {
 
-    use LoggerAwareTrait;
+    use CommonTrait, LoggerAwareTrait;
 
     protected bool $debug = false;
 

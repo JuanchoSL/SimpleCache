@@ -1,15 +1,13 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace JuanchoSL\SimpleCache\Repositories;
-use JuanchoSL\Exceptions\PreconditionRequiredException;
+
+use JuanchoSL\Exceptions\DestinationUnreachableException;
+use JuanchoSL\Exceptions\ServiceUnavailableException;
 use JuanchoSL\Validators\Types\Strings\StringValidations;
 
 class RedisCache extends AbstractCache
 {
-
-    use CommonTrait;
 
     private \Redis $server;
     private string $host;
@@ -20,7 +18,7 @@ class RedisCache extends AbstractCache
     public function __construct(string $host)
     {
         if (!extension_loaded('redis')) {
-            throw new PreconditionRequiredException("The extension Redis is not available");
+            throw new ServiceUnavailableException("The extension Redis is not available");
         }
         if (strpos($host, ':') !== false) {
             list($this->host, $port) = explode(':', $host);
@@ -31,7 +29,7 @@ class RedisCache extends AbstractCache
         }
         $this->server = new \Redis();
         if (!$this->server->connect($this->host, $this->port)) {
-            $exception = new \Exception("Can not connect to the required server");
+            $exception = new DestinationUnreachableException("Can not connect to the required destiny");
             $this->log($exception, 'error', [
                 'exception' => $exception,
                 'credentials' => [
@@ -41,7 +39,6 @@ class RedisCache extends AbstractCache
             ]);
             throw $exception;
         }
-        //$this->server = new \Redis(['host' => $this->host, 'port' => (int) $this->port]);
     }
 
     public function get(string $key, mixed $default = null): mixed
@@ -49,7 +46,6 @@ class RedisCache extends AbstractCache
         if ($this->server->exists($key)) {
             $value = $this->server->get($key);
             if ((new StringValidations)->is()->isNotEmpty()->isSerialized()->getResult($value)) {
-            //if (!empty($value) && is_string($value) && $this->isSerialized($value)) {
                 $value = unserialize($value);
             }
             return $value;
@@ -70,15 +66,20 @@ class RedisCache extends AbstractCache
 
     public function delete(string $key): bool
     {
+        return $this->deleteMultiple([$key]);
+    }
+    
+    public function deleteMultiple(iterable $keys): bool
+    {
         if (method_exists($this->server, 'del')) {
-            $result = $this->server->del($key);
+            $result = $this->server->del($keys);
         } elseif (method_exists($this->server, 'delete')) {
-            $result = $this->server->delete($key);
+            $result = $this->server->delete($keys);
         } elseif (method_exists($this->server, 'unlink')) {
-            $result = $this->server->unlink($key);
+            $result = $this->server->unlink($keys);
         }
         $result = (isset($result) && $result !== false);
-        $this->log("The key {key} is going to delete", 'info', ['key' => $key, 'method' => __FUNCTION__, 'result' => intval($result)]);
+        $this->log("Some keys are going to be deleted", 'info', ['keys' => $keys, 'method' => __FUNCTION__, 'result' => intval($result)]);
         return $result;
     }
 
@@ -124,19 +125,8 @@ class RedisCache extends AbstractCache
     public function increment(string $key, int|float $increment = 1, \DateInterval|null|int $ttl = null): int|float|bool
     {
         return (is_float($increment)) ? $this->server->incrByFloat($key, $increment) : $this->server->incrBy($key, $increment);
-        /*
-        if (is_float($increment)) {
-            if (!is_numeric($value = $this->get($key))) {
-                if (!$this->set($key, $default_value, $ttl)) {
-                    return false;
-                }
-                $value = $default_value;
-            }
-            $new_value = $value + $increment;
-            return $this->replace($key, $new_value) ? $new_value : false;
-        }
-        */
     }
+
     public function decrement(string $key, int|float $decrement = 1, \DateInterval|null|int $ttl = null): int|float|bool
     {
         $value = $this->get($key);

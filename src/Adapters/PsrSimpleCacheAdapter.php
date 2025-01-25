@@ -1,15 +1,18 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace JuanchoSL\SimpleCache\Adapters;
 
+use JuanchoSL\Exceptions\PreconditionFailedException;
 use JuanchoSL\Validators\Types\Strings\StringValidations;
 use Psr\SimpleCache\CacheInterface;
 
 class PsrSimpleCacheAdapter implements CacheInterface
 {
     private CacheInterface $cache;
+
+    protected string $chars = 'a-zA-Z0-9_.';
+    protected int $max_lenght = 64;
+    protected string $extra_chars = '';
 
     public static function getInstance(CacheInterface $cache): CacheInterface
     {
@@ -21,10 +24,27 @@ class PsrSimpleCacheAdapter implements CacheInterface
         $this->cache = $cache;
     }
 
+    public function getPattern(): string
+    {
+        return "/^[{$this->chars}{$this->extra_chars}]{1,{$this->max_lenght}}+\$/";//$this->pattern;
+    }
+
+    public function setExtraChars(string $extra_chars): void
+    {
+        $this->extra_chars = $extra_chars;
+    }
+    public function setMaxKeyLenght(int $max_lenght): void
+    {
+        if ($max_lenght < 64) {
+            throw new PreconditionFailedException("The max lenght needs to be 64 or bigger");
+        }
+        $this->max_lenght = $max_lenght;
+    }
+
     public function has(string $key): bool
     {
         $this->checkKey($key);
-        return ($this->cache->get($key) !== false);
+        return $this->cache->has($key);
     }
 
     public function clear(): bool
@@ -85,7 +105,7 @@ class PsrSimpleCacheAdapter implements CacheInterface
     }
     protected function checkKey(string $key)
     {
-        if (!(new StringValidations)->isNotEmpty()->isLengthLessOrEqualsThan(64)->isRegex('/^[a-zA-Z0-9_.]+$/')->getResult($key)) {
+        if (!(new StringValidations)->isNotEmpty()->isRegex($this->getPattern())->getResult($key)) {
             throw new \InvalidArgumentException("The key '{$key}' is not valid");
         }
         return true;

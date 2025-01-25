@@ -1,16 +1,13 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace JuanchoSL\SimpleCache\Repositories;
 
+use JuanchoSL\Exceptions\DestinationUnreachableException;
 use JuanchoSL\Validators\Types\Integers\IntegerValidation;
 use JuanchoSL\Validators\Types\Strings\StringValidations;
 
 class FileCache extends AbstractCache
 {
-
-    use CommonTrait;
 
     protected string $cache_dir;
 
@@ -19,7 +16,7 @@ class FileCache extends AbstractCache
         $this->cache_dir = rtrim($host, DIRECTORY_SEPARATOR);
         if (!file_exists($this->cache_dir)) {
             if (!mkdir($this->cache_dir, 0777, true)) {
-                $exception = new \Exception("Can not connect to the required server");
+                $exception = new DestinationUnreachableException("Can not connect to the required destiny");
                 $this->log($exception, 'error', [
                     'exception' => $exception,
                     'credentials' => [
@@ -46,7 +43,6 @@ class FileCache extends AbstractCache
                         'ttl' => $data_unserialized['ttl'],
                         'data' => $data_unserialized['data']
                     ];
-                    //if (is_string($data_unserialized['data']) && $this->isSerialized($data_unserialized['data'])) {
                     if ((new StringValidations)->is()->isNotEmpty()->isSerialized()->getResult($data_unserialized['data'])) {
                         $response['data'] = unserialize($data_unserialized['data']);
                     }

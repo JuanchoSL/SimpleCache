@@ -1,6 +1,23 @@
 # Change Simple Cache
 
 
+## [1.0.5] - 2025
+
+### Added
+- More documentation into README
+- Added the `setExtraChars` method to **PSR16** Adapter in order to adapt the key validation to your needs 
+- Added the `setMaxKeyLenght` method to **PSR16** Adapter in order to modify key check for use keys with more than 64 chars lenght
+- More tests
+
+### Changed
+- `ServiceUnavailableException` when a required library or module is not instaled
+- `DestinationUnreachableException` when a destination is not available
+- Docker test container changed to php v8.4
+
+### Fixed
+- The `PsrSimpleCacheAdapter` *has* method returns `true` when the value is null, now use the *has* method from implementation comparing `null !== null`
+
+
 ## [1.0.4] - 2024-12-12
 
 ### Added
