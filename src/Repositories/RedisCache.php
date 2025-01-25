@@ -67,17 +67,6 @@ class RedisCache extends AbstractCache
     public function delete(string $key): bool
     {
         return $this->deleteMultiple([$key]);
-/*
-        if (method_exists($this->server, 'del')) {
-            $result = $this->server->del($key);
-        } elseif (method_exists($this->server, 'delete')) {
-            $result = $this->server->delete($key);
-        } elseif (method_exists($this->server, 'unlink')) {
-            $result = $this->server->unlink($key);
-        }
-        $result = (isset($result) && $result !== false);
-        $this->log("The key {key} is going to delete", 'info', ['key' => $key, 'method' => __FUNCTION__, 'result' => intval($result)]);
-        return $result;*/
     }
     
     public function deleteMultiple(iterable $keys): bool
