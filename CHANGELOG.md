@@ -1,7 +1,7 @@
 # Change Simple Cache
 
 
-## [1.0.5] - 2025
+## [1.0.5] - 2025-01-25
 
 ### Added
 - More documentation into README
