@@ -64,7 +64,7 @@ $result = $cache->delete(string $cache_key);
 Set into `$cache_key` the `$values`, an iterable containing a list of `$cache_key => $value` pairs, valid for `$ttl` seconds or default TTL if you don not pass a value
 
 ```php
-$result = $cache->setMultiple(iterable $values, int $ttl = 0);
+$result = $cache->setMultiple(iterable $values, \DateInterval|int $ttl = 0);
 ```
 
 #### For read multiple cache indexes
@@ -96,7 +96,7 @@ $result = $cache->replace(string $cache_key, mixed $new_value);
 Change the expiration time of `$cache_key` with the new one passed as `$new_ttl`
 
 ```php
-$result = $cache->touch(string $cache_key, int $new_ttl);
+$result = $cache->touch(string $cache_key, \DateInterval|int $new_ttl);
 ```
 
 #### For increment a cache index numeric value
@@ -104,7 +104,7 @@ $result = $cache->touch(string $cache_key, int $new_ttl);
 Increments the value into `$cache_key` adding `$numeric_increment` to his value. If not exists it is created.
 
 ```php
-$result = $cache->increment(string $cache_key, int|float $numeric_increment, int $ttl_if_not_exists = $max_ttl);
+$result = $cache->increment(string $cache_key, int|float $numeric_increment, \DateInterval|int $ttl_if_not_exists = $max_ttl);
 ```
 
 #### For decrement a cache index numeric value
@@ -112,7 +112,7 @@ $result = $cache->increment(string $cache_key, int|float $numeric_increment, int
 Decrements the value into `$cache_key` subtracting `$numeric_decrement` to his value. If not exists it is created.
 
 ```php
-$result = $cache->decrement(string $cache_key, int|float $numeric_decrement, int $ttl_if_not_exists = $max_ttl);
+$result = $cache->decrement(string $cache_key, int|float $numeric_decrement, \DateInterval|int $ttl_if_not_exists = $max_ttl);
 ```
 
 #### For check if the cache contains a `$cache_key`

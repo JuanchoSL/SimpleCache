@@ -3,6 +3,7 @@
 namespace JuanchoSL\SimpleCache\Repositories;
 
 use JuanchoSL\Exceptions\DestinationUnreachableException;
+use Psr\Log\LogLevel;
 
 class ProcessCache extends AbstractCache
 {
@@ -19,7 +20,7 @@ class ProcessCache extends AbstractCache
         static::$cache[$this->host_name] = array();
         if (!isset(static::$cache[$this->host_name])) {
             $exception = new DestinationUnreachableException("Can not connect to the required destiny");
-            $this->log($exception, 'error', [
+            $this->log($exception, LogLevel::ERROR, [
                 'exception' => $exception,
                 'credentials' => [
                     'host' => $this->host_name
@@ -36,10 +37,10 @@ class ProcessCache extends AbstractCache
             if (isset($value['ttl'], $value['value']) && $value['ttl'] > time()) {
                 return $value['value'];
             }
-            $this->log("The key {key} is not valid", 'info', ['key' => $key, 'data' => $value, 'method' => __FUNCTION__]);
+            $this->log("The key {key} is not valid", LogLevel::INFO, ['key' => $key, 'data' => $value, 'method' => __FUNCTION__]);
             $this->delete($key);
         } else {
-            $this->log("The key {key} does not exists", 'info', ['key' => $key, 'method' => __FUNCTION__]);
+            $this->log("The key {key} does not exists", LogLevel::INFO, ['key' => $key, 'method' => __FUNCTION__]);
         }
         return $default;
     }
@@ -48,14 +49,14 @@ class ProcessCache extends AbstractCache
     {
         static::$cache[$this->host_name][$key] = array('ttl' => time() + $this->maxTtl($ttl), 'value' => $value);
         $result = (isset(static::$cache[$this->host_name][$key]));
-        $this->log("The key {key} is going to save", 'info', ['key' => $key, 'data' => $value, 'method' => __FUNCTION__, 'result' => intval($result)]);
+        $this->log("The key {key} is going to save", LogLevel::INFO, ['key' => $key, 'data' => $value, 'method' => __FUNCTION__, 'result' => intval($result)]);
         return $result;
     }
 
     public function delete(string $key): bool
     {
         if (isset(static::$cache[$this->host_name]) && array_key_exists($key, static::$cache[$this->host_name])) {
-            $this->log("The key {key} is going to delete", 'info', ['key' => $key, 'method' => __FUNCTION__]);
+            $this->log("The key {key} is going to delete", LogLevel::INFO, ['key' => $key, 'method' => __FUNCTION__]);
             unset(static::$cache[$this->host_name][$key]);
             return true;
         }
@@ -71,11 +72,11 @@ class ProcessCache extends AbstractCache
     public function replace(string $key, mixed $value): bool
     {
         if (array_key_exists($key, static::$cache[$this->host_name])) {
-            $this->log("The key {key} is going to be replaced", 'info', ['key' => $key, 'data' => ['old' => static::$cache[$this->host_name][$key]['value'], 'new' => $value], 'method' => __FUNCTION__]);
+            $this->log("The key {key} is going to be replaced", LogLevel::INFO, ['key' => $key, 'data' => ['old' => static::$cache[$this->host_name][$key]['value'], 'new' => $value], 'method' => __FUNCTION__]);
             static::$cache[$this->host_name][$key]['value'] = $value;
             return true;
         }
-        $this->log("The key {key} does not exists", 'info', ['key' => $key, 'method' => __FUNCTION__]);
+        $this->log("The key {key} does not exists", LogLevel::INFO, ['key' => $key, 'method' => __FUNCTION__]);
         return false;
     }
 
@@ -134,7 +135,7 @@ class ProcessCache extends AbstractCache
     {
         $result = array_diff_key(static::$cache[$this->host_name], array_fill_keys($keys, null));
         $counter = count(static::$cache[$this->host_name]) - count($result);
-        $this->log("Some keys are going to be deleted", 'info', ['keys' => $keys, 'method' => __FUNCTION__, 'result' => $counter]);
+        $this->log("Some keys are going to be deleted", LogLevel::INFO, ['keys' => $keys, 'method' => __FUNCTION__, 'result' => $counter]);
         static::$cache[$this->host_name] = $result;
         return $counter == count($keys);
     }

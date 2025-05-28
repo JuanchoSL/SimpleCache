@@ -4,6 +4,7 @@ namespace JuanchoSL\SimpleCache\Repositories;
 
 use JuanchoSL\Exceptions\DestinationUnreachableException;
 use JuanchoSL\Exceptions\ServiceUnavailableException;
+use Psr\Log\LogLevel;
 
 class MemCache extends AbstractCache
 {
@@ -29,7 +30,7 @@ class MemCache extends AbstractCache
         $this->server = new \Memcache();
         if (!$this->server->connect($this->host, $this->port)) {
             $exception = new DestinationUnreachableException("Can not connect to the required destiny");
-            $this->log($exception, 'error', [
+            $this->log($exception, LogLevel::ERROR, [
                 'exception' => $exception,
                 'credentials' => [
                     'host' => $this->host,
@@ -43,7 +44,7 @@ class MemCache extends AbstractCache
     public function set(string $key, mixed $value, \DateInterval|null|int $ttl = null): bool
     {
         $result = $this->server->set($key, $value, MEMCACHE_COMPRESSED, $this->maxTtl($ttl));
-        $this->log("The key {key} is going to save", 'info', ['key' => $key, 'data' => $value, 'method' => __FUNCTION__, 'result' => intval($result)]);
+        $this->log("The key {key} is going to save", LogLevel::INFO, ['key' => $key, 'data' => $value, 'method' => __FUNCTION__, 'result' => intval($result)]);
         return $result;
     }
 
@@ -63,7 +64,7 @@ class MemCache extends AbstractCache
     public function delete(string $key): bool
     {
         $result = $this->server->delete($key);
-        $this->log("The key {key} is going to delete", 'info', ['key' => $key, 'method' => __FUNCTION__, 'result' => intval($result)]);
+        $this->log("The key {key} is going to delete", LogLevel::INFO, ['key' => $key, 'method' => __FUNCTION__, 'result' => intval($result)]);
         return $result;
     }
 
@@ -76,7 +77,7 @@ class MemCache extends AbstractCache
     {
         $result = $this->server->get($key);
         if ($result === false) {
-            $this->log("The key {key} does not exists", 'info', ['key' => $key, 'method' => __FUNCTION__]);
+            $this->log("The key {key} does not exists", LogLevel::INFO, ['key' => $key, 'method' => __FUNCTION__]);
             $result = $default;
         }
         return $result;
@@ -85,7 +86,7 @@ class MemCache extends AbstractCache
     public function replace(string $key, mixed $value): bool
     {
         $result = $this->server->replace($key, $value);
-        $this->log("The key {key} is going to be replaced", 'info', ['key' => $key, 'data' => ['new' => $value], 'method' => __FUNCTION__, 'result' => intval($result)]);
+        $this->log("The key {key} is going to be replaced", LogLevel::INFO, ['key' => $key, 'data' => ['new' => $value], 'method' => __FUNCTION__, 'result' => intval($result)]);
         return $result;
     }
 

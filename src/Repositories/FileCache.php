@@ -5,6 +5,7 @@ namespace JuanchoSL\SimpleCache\Repositories;
 use JuanchoSL\Exceptions\DestinationUnreachableException;
 use JuanchoSL\Validators\Types\Integers\IntegerValidation;
 use JuanchoSL\Validators\Types\Strings\StringValidations;
+use Psr\Log\LogLevel;
 
 class FileCache extends AbstractCache
 {
@@ -17,7 +18,7 @@ class FileCache extends AbstractCache
         if (!file_exists($this->cache_dir)) {
             if (!mkdir($this->cache_dir, 0777, true)) {
                 $exception = new DestinationUnreachableException("Can not connect to the required destiny");
-                $this->log($exception, 'error', [
+                $this->log($exception, LogLevel::ERROR, [
                     'exception' => $exception,
                     'credentials' => [
                         'host' => $this->cache_dir
@@ -71,10 +72,10 @@ class FileCache extends AbstractCache
             if (is_array($data) && IntegerValidation::isValueGreatherThan($data['ttl'], time())) {
                 return $data['data'];
             }
-            $this->log("The key {key} is not valid", 'info', ['key' => $key, 'data' => $data, 'method' => __FUNCTION__]);
+            $this->log("The key {key} is not valid", LogLevel::INFO, ['key' => $key, 'data' => $data, 'method' => __FUNCTION__]);
             $this->delete($key);
         } else {
-            $this->log("The file {cache_file} does not exists", 'info', ['cache_file' => $cache_file, 'method' => __FUNCTION__]);
+            $this->log("The file {cache_file} does not exists", LogLevel::INFO, ['cache_file' => $cache_file, 'method' => __FUNCTION__]);
         }
         return $default;
     }
@@ -86,15 +87,15 @@ class FileCache extends AbstractCache
         }
         $value = ['ttl' => time() + $this->maxTtl($ttl), 'data' => $value];
         $result = $this->putContents($key, $value);
-        $this->log("The key {key} is going to save", 'info', ['key' => $key, 'data' => $value, 'method' => __FUNCTION__, 'result' => intval($result)]);
+        $this->log("The key {key} is going to save", LogLevel::INFO, ['key' => $key, 'data' => $value, 'method' => __FUNCTION__, 'result' => intval($result)]);
         return $result;
     }
 
     public function delete(string $key): bool
     {
         $cache_file = $this->cache_dir . DIRECTORY_SEPARATOR . $key;
-        $result = unlink($cache_file);
-        $this->log("The file {key} is going to delete", 'info', ['key' => $cache_file, 'method' => __FUNCTION__, 'result' => intval($result)]);
+        $result = (file_exists($cache_file)) ? unlink($cache_file) : false;
+        $this->log("The file {key} is going to delete", LogLevel::INFO, ['key' => $cache_file, 'method' => __FUNCTION__, 'result' => intval($result)]);
         return $result;
     }
 
@@ -116,7 +117,7 @@ class FileCache extends AbstractCache
             }
             $value = ['ttl' => $data['ttl'], 'data' => $value];
             $result = $this->putContents($key, $value);
-            $this->log("The key {key} is going to be replaced", 'info', ['key' => $key, 'data' => ['old' => $data['data'], 'new' => $value], 'method' => __FUNCTION__, 'result' => intval($result)]);
+            $this->log("The key {key} is going to be replaced", LogLevel::INFO, ['key' => $key, 'data' => ['old' => $data['data'], 'new' => $value], 'method' => __FUNCTION__, 'result' => intval($result)]);
             return $result;
         }
         return false;

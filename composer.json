@@ -4,7 +4,6 @@
     "type": "library",
     "license": "MIT",
     "homepage": "https://github.com/JuanchoSL/SimpleCache",
-    "minimum-stability": "stable",
     "keywords": [
         "cache",
         "memcache cache",
