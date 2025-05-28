@@ -5,6 +5,7 @@ namespace JuanchoSL\SimpleCache\Repositories;
 use JuanchoSL\Exceptions\DestinationUnreachableException;
 use JuanchoSL\Exceptions\ServiceUnavailableException;
 use JuanchoSL\Validators\Types\Strings\StringValidations;
+use Psr\Log\LogLevel;
 
 class RedisCache extends AbstractCache
 {
@@ -30,7 +31,7 @@ class RedisCache extends AbstractCache
         $this->server = new \Redis();
         if (!$this->server->connect($this->host, $this->port)) {
             $exception = new DestinationUnreachableException("Can not connect to the required destiny");
-            $this->log($exception, 'error', [
+            $this->log($exception, LogLevel::ERROR, [
                 'exception' => $exception,
                 'credentials' => [
                     'host' => $this->host,
@@ -50,7 +51,7 @@ class RedisCache extends AbstractCache
             }
             return $value;
         }
-        $this->log("The key {key} does not exists", 'info', ['key' => $key, 'method' => __FUNCTION__]);
+        $this->log("The key {key} does not exists", LogLevel::INFO, ['key' => $key, 'method' => __FUNCTION__]);
         return $default;
     }
 
@@ -60,7 +61,7 @@ class RedisCache extends AbstractCache
             $value = serialize($value);
         }
         $result = $this->server->set($key, $value, $this->maxTtl($ttl));
-        $this->log("The key {key} is going to save", 'info', ['key' => $key, 'data' => $value, 'method' => __FUNCTION__, 'result' => intval($result)]);
+        $this->log("The key {key} is going to save", LogLevel::INFO, ['key' => $key, 'data' => $value, 'method' => __FUNCTION__, 'result' => intval($result)]);
         return $result;
     }
 
@@ -79,7 +80,7 @@ class RedisCache extends AbstractCache
             $result = $this->server->unlink($keys);
         }
         $result = (isset($result) && $result !== false);
-        $this->log("Some keys are going to be deleted", 'info', ['keys' => $keys, 'method' => __FUNCTION__, 'result' => intval($result)]);
+        $this->log("Some keys are going to be deleted", LogLevel::INFO, ['keys' => $keys, 'method' => __FUNCTION__, 'result' => intval($result)]);
         return $result;
     }
 
@@ -95,7 +96,7 @@ class RedisCache extends AbstractCache
         }
         $old = $this->server->getSet($key, $value);
         $result = ($old !== $value);
-        $this->log("The key {key} is going to be replaced", 'info', ['key' => $key, 'data' => ['old' => $old, 'new' => $value], 'method' => __FUNCTION__, 'result' => intval($result)]);
+        $this->log("The key {key} is going to be replaced", LogLevel::INFO, ['key' => $key, 'data' => ['old' => $old, 'new' => $value], 'method' => __FUNCTION__, 'result' => intval($result)]);
         return $result;
     }
 

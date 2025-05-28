@@ -4,6 +4,7 @@ namespace JuanchoSL\SimpleCache\Repositories;
 
 use JuanchoSL\SimpleCache\Contracts\SimpleCacheInterface;
 use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LogLevel;
 
 abstract class AbstractCache implements SimpleCacheInterface
 {
@@ -18,10 +19,10 @@ abstract class AbstractCache implements SimpleCacheInterface
         return $this;
     }
 
-    protected function log(\Stringable|string $message, $log_level, $context = [])
+    protected function log(\Stringable|string $message, mixed $log_level, array $context = [])
     {
         if (isset($this->logger)) {
-            if ($this->debug || $log_level != 'debug') {
+            if ($this->debug || $log_level != LogLevel::DEBUG) {
                 if ($this->debug) {
                     $context['memory'] = memory_get_usage();
                 } elseif (array_key_exists('data', $context)) {

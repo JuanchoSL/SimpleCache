@@ -28,24 +28,12 @@ class RepositoryTest extends TestCase
             return ['Process' => [new ProcessCache(Credentials::getHost(Engines::PROCESS))]];
         }
         return [
-            'Process' => [
-                new ProcessCache(Credentials::getHost(Engines::PROCESS))
-            ],
-            'Session' => [
-                new SessionCache(Credentials::getHost(Engines::SESSION))
-            ],
-            'File' => [
-                new FileCache(Credentials::getHost(Engines::FILE))
-            ],
-            'Memcache' => [
-                new MemCache(Credentials::getHost(Engines::MEMCACHE))
-            ],
-            'Memcached' => [
-                new MemCached(Credentials::getHost(Engines::MEMCACHED))
-            ],
-            'Redis' => [
-                new RedisCache(Credentials::getHost(Engines::REDIS))
-            ],
+            'Process' => [new ProcessCache(Credentials::getHost(Engines::PROCESS))],
+            'Session' => [new SessionCache(Credentials::getHost(Engines::SESSION))],
+            'File' => [new FileCache(Credentials::getHost(Engines::FILE))],
+            'Memcache' => [new MemCache(Credentials::getHost(Engines::MEMCACHE))],
+            'Memcached' => [new MemCached(Credentials::getHost(Engines::MEMCACHED))],
+            'Redis' => [new RedisCache(Credentials::getHost(Engines::REDIS))],
         ];
     }
 
