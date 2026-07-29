@@ -58,8 +58,15 @@ abstract class AbstractCache implements SimpleCacheInterface
     public function getMultiple(iterable $keys, mixed $default = null): iterable
     {
         $response = [];
-        foreach ($keys as $key) {
-            $response[$key] = $this->get($key) ?? $default;
+        $default_value = $default;
+        foreach ($keys as $i => $key) {
+            if (is_iterable($default)) {
+                $default_value = (array_key_exists($key, $default)) ? $default[$key] : $default[$i];
+            }
+            if (!is_null($value = $this->get($key, $default_value))) {
+                $response[$key] = $value;
+            }
+            //$response[$key] = $this->get($key, $default_value) ?? $default_value;
         }
         return $response;
     }

@@ -41,7 +41,7 @@ class SessionCache extends AbstractCache
         } else {
             $this->log("The key {key} does not exists", LogLevel::INFO, ['key' => $key, 'method' => __FUNCTION__]);
         }
-        return $default;
+        return (is_callable($default)) ? $default() : $default;
     }
 
     public function set(string $key, mixed $value, \DateInterval|null|int $ttl = null): bool

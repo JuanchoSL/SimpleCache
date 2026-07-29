@@ -10,6 +10,7 @@ use JuanchoSL\SimpleCache\Factories\EngineFactory;
 use JuanchoSL\SimpleCache\Tests\Common\Credentials;
 use Psr\SimpleCache\CacheInterface;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 class SimpleCacheTest extends TestCase
 {
@@ -127,7 +128,7 @@ class SimpleCacheTest extends TestCase
     public function testSetObject($cache)
     {
         $name = str_replace('\\', '_', get_class($cache));
-        $obj = new \stdClass;
+        $obj = new stdClass;
         $obj->key = 'value';
         $result = $cache->set("{$name}.object", $obj, $this->ttl);
         $this->assertTrue($result);
@@ -154,6 +155,47 @@ class SimpleCacheTest extends TestCase
         $this->testSetMultiple($cache);
         $keys = ["a", "b", "c"];
         $results = $cache->getMultiple($keys);
+        foreach ($keys as $key) {
+            $this->assertEquals($key . $key, $results[$key]);
+        }
+        $cache->clear();
+    }
+
+    /**
+     * @dataProvider providerLoginData
+     */
+    public function testGetMultipleDefault($cache)
+    {
+        $cache->clear();
+        $keys = ["a", "b", "c"];
+        
+        $results = $cache->getMultiple($keys);
+        $this->assertEmpty($results);
+        /*
+        */
+        $results = $cache->getMultiple($keys, false);
+        $this->assertNotEmpty($results);
+        foreach ($keys as $key) {
+            $this->assertEmpty($results[$key]);
+        }
+        $defaults = [];
+        foreach ($keys as $i => $key) {
+            $defaults[$i] = $key . $key;
+        }
+        $results = $cache->getMultiple($keys, $defaults);
+        $this->assertNotEmpty($results);
+        foreach ($keys as $key) {
+            $this->assertEquals($key . $key, $results[$key]);
+        }
+
+        $defaults = [];
+        foreach ($keys as $i => $key) {
+            $defaults[$i] = (function () use ($key) {
+                return $key . $key;
+            });
+        }
+
+        $results = $cache->getMultiple($keys, $defaults);
         foreach ($keys as $key) {
             $this->assertEquals($key . $key, $results[$key]);
         }
@@ -198,5 +240,52 @@ class SimpleCacheTest extends TestCase
     {
         $this->expectException(PreconditionFailedException::class);
         $cache->setMaxKeyLenght(25);
+    }
+
+
+    /**
+     * @dataProvider providerLoginData
+     */
+    public function testRetrieveDefault($cache)
+    {
+        $name = md5(str_replace('\\', '-', get_class($cache)));
+
+        $results = $cache->get("{$name}.key");
+        $this->assertEmpty($results);
+        $this->assertIsNotArray($results);
+
+        $results = $cache->get("{$name}.key", ['key' => 'value']);
+        $this->assertNotEmpty($results);
+        $this->assertIsArray($results);
+        $this->assertArrayHasKey('key', $results);
+        $this->assertEquals('value', $results['key']);
+
+        $results = $cache->get("{$name}.key", function () {
+            return ['key' => 'value'];
+        });
+        $this->assertNotEmpty($results);
+        $this->assertIsArray($results);
+        $this->assertArrayHasKey('key', $results);
+        $this->assertEquals('value', $results['key']);
+
+        $std = new stdClass();
+        $std->key = 'value';
+        $results = $cache->get("{$name}.key", $std);
+        $this->assertNotEmpty($results);
+        $this->assertIsObject($results);
+        $this->assertObjectHasProperty('key', $results);
+        $this->assertEquals('value', $results->key);
+
+        $results = $cache->get("{$name}.key", function () {
+            $std = new stdClass();
+            $std->key = 'value';
+            return $std;
+        });
+        $this->assertNotEmpty($results);
+        $this->assertIsObject($results);
+        $this->assertObjectHasProperty('key', $results);
+        $this->assertEquals('value', $results->key);
+
+        $cache->clear();
     }
 }

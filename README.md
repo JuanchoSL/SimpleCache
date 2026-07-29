@@ -69,7 +69,11 @@ $result = $cache->setMultiple(iterable $values, \DateInterval|int $ttl = 0);
 
 #### For read multiple cache indexes
 
-Read from cache the contents of `$cache_keys` and return a list of `$key => $value` pairs. Missed keys has the `$default` value
+Read from cache the contents of `$cache_keys` and return a list of `$key => $value` pairs. Missed keys will be filled with the `$default` value if it is provided and distinct of NULL, or ignored otherwise.
+> default values can be:
+>- a value for all (distinct of null)
+>- a list with the same array indexes of the required keys and an exclusive default value or each key
+>- a collection of keys => default_value (primitive, class with an __invoke method or closure)
 
 ```php
 $cache_value = $cache->getMultiple(iterable $cache_keys, $default = null);

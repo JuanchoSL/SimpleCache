@@ -78,7 +78,7 @@ class MemCache extends AbstractCache
         $result = $this->server->get($key);
         if ($result === false) {
             $this->log("The key {key} does not exists", LogLevel::INFO, ['key' => $key, 'method' => __FUNCTION__]);
-            $result = $default;
+            $result = (is_callable($default)) ? $default() : $default;
         }
         return $result;
     }

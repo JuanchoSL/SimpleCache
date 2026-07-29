@@ -75,8 +75,8 @@ class MemCached extends AbstractCache
     {
         $result = $this->server->get($key);
         if ($this->server->getResultCode() == \Memcached::RES_NOTFOUND) {
-            $result = $default;
             $this->log("The key {key} does not exists", LogLevel::INFO, ['key' => $key, 'method' => __FUNCTION__]);
+            $result = (is_callable($default)) ? $default() : $default;
         }
         return $result;
     }
@@ -99,7 +99,7 @@ class MemCached extends AbstractCache
                     $return = [];
                 }
                 return $return;
-                        
+
                 print_r($this->server->getVersion());
                 exit;
                 */
@@ -166,14 +166,21 @@ class MemCached extends AbstractCache
      */
     public function getMultiple(iterable $keys, mixed $default = null): iterable
     {
-        $response = [];
+        $default_value = $default;
         $results = $this->server->getMulti((array) $keys);
         if (is_array($results)) {
-            foreach ($results as $key => $result) {
-                $response[$key] = empty($result) ? $default : $result;
+            $i = 0;
+            foreach ($keys as $key) {
+                if (empty($results[$key]) && !is_null($default)) {
+                    if (is_iterable($default)) {
+                        $default_value = (array_key_exists($key, $default)) ? $default[$key] : $default[$i];
+                    }
+                    $results[$key] = (is_callable($default_value)) ? $default_value() : $default_value;
+                }
+                $i += 1;
             }
         }
-        return $response;
+        return $results;
     }
 
     public function deleteMultiple(iterable $keys): bool

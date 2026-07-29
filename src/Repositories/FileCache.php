@@ -77,7 +77,7 @@ class FileCache extends AbstractCache
         } else {
             $this->log("The file {cache_file} does not exists", LogLevel::INFO, ['cache_file' => $cache_file, 'method' => __FUNCTION__]);
         }
-        return $default;
+        return (is_callable($default)) ? $default() : $default;
     }
 
     public function set(string $key, mixed $value, \DateInterval|null|int $ttl = null): bool

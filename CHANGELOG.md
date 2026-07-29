@@ -1,4 +1,20 @@
-# Change Simple Cache
+# Change Log - Simple Cache
+
+## [1.0.7] - 2026
+
+### Added
+
+- Checked full compatibility with php 8.5
+
+### Changed
+
+- Minimun PHP version updated to 8.1
+
+### Fixed
+
+- When a GET calling does not have a valid value from cache and the $default parameter is provided, if it is a closure or an invokable method, will be called, returning the result
+
+- When a GETMULTI calling does not have a valid value from cache for a required key, if the $default parameter is provided and it is a closure or an invokable method, will be called, returning the result, otherwhise, can provide a list of defaults with the same index that the required keys or an assoc with the signature [cache_key => default_value,...]. If the default value remain as NULL, the response position will be removed
 
 ## [1.0.6] - 2025-11-07
 

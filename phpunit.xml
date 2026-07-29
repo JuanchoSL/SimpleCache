@@ -15,7 +15,7 @@
         </testsuite>
     </testsuites>
     <php>
-    <env name="MEMCACHE_HOST" value="host.docker.internal:11211"/>
-    <env name="REDIS_HOST" value="host.docker.internal:6379"/>
+        <env name="MEMCACHE_HOST" value="host.docker.internal:11211"/>
+        <env name="REDIS_HOST" value="host.docker.internal:6379"/>
     </php>
 </phpunit>
