@@ -1,8 +1,9 @@
 FROM php:8.4-fpm
 
+
 RUN apt-get update && apt-get install -y git zip libmemcached-dev zlib1g-dev libssl-dev
 
-RUN docker-php-ext-install pdo_mysql
+#RUN docker-php-ext-install pdo_mysql
 
 COPY ./src ./src
 COPY ./tests ./tests
@@ -16,7 +17,7 @@ RUN pecl install xdebug
 # install the memcached extension
 RUN yes '' | pecl install -f memcached && docker-php-ext-enable memcached
 
-# install the memcache extension
+# install the memcache extension, not available for php 8.5
 RUN yes '' | pecl install -f memcache && docker-php-ext-enable memcache
 
 # install the redis extension
