@@ -1,6 +1,6 @@
 # Change Log - Simple Cache
 
-## [1.0.7] - 2026
+## [1.0.7] - 2026-07-30
 
 ### Added
 
