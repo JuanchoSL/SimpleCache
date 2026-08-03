@@ -19,7 +19,7 @@ class SimpleCacheTest extends TestCase
     private $value_array = ['value'];
     private $ttl = 5;
 
-    protected function providerLoginData($cache): array
+    protected static function providerLoginData($cache): array
     {
         if (Credentials::GIT_MODE) {
             return ['Process' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::PROCESS, Credentials::getHost(Engines::PROCESS)))]];

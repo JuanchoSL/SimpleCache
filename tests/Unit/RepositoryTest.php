@@ -23,7 +23,7 @@ class RepositoryTest extends TestCase
     private $ttl = 5;
 
 
-    protected function providerLoginData(): array
+    protected static function providerLoginData(): array
     {
         if (Credentials::GIT_MODE) {
             return ['Process' => [new ProcessCache(Credentials::getHost(Engines::PROCESS))]];
