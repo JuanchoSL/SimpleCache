@@ -22,7 +22,10 @@ class SimpleCacheTest extends TestCase
     protected static function providerLoginData($cache): array
     {
         if (Credentials::GIT_MODE) {
-            return ['Process' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::PROCESS, Credentials::getHost(Engines::PROCESS)))]];
+            return [
+                'Process' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::PROCESS, Credentials::getHost(Engines::PROCESS)))],
+                'File' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::FILE, Credentials::getHost(Engines::FILE)))]
+            ];
         }
         return [
             'Process' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::PROCESS, Credentials::getHost(Engines::PROCESS)))],
@@ -168,11 +171,11 @@ class SimpleCacheTest extends TestCase
     {
         $cache->clear();
         $keys = ["a", "b", "c"];
-        
+
         $results = $cache->getMultiple($keys);
         $this->assertEmpty($results);
         /*
-        */
+         */
         $results = $cache->getMultiple($keys, false);
         $this->assertNotEmpty($results);
         foreach ($keys as $key) {
