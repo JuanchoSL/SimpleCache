@@ -23,16 +23,19 @@ class LoggerRepositoryTest extends TestCase
 
     private $ttl = 5;
 
-    private $file_path;
-    protected function providerLoginData(): array
+    private static $file_path;
+    protected static function providerLoginData(): array
     {
         $debug = true;
         defined('TMPDIR') or define('TMPDIR', sys_get_temp_dir());
 
-        $this->file_path = TMPDIR . DIRECTORY_SEPARATOR . 'error.log';
-        $logger = new Logger((new FileRepository($this->file_path))->setComposer(new TextComposer));
+        static::$file_path = TMPDIR . DIRECTORY_SEPARATOR . 'error.log';
+        $logger = new Logger((new FileRepository(static::$file_path))->setComposer(new TextComposer));
         if (Credentials::GIT_MODE) {
-            return ['Process' => [new ProcessCache(Credentials::getHost(Engines::PROCESS)), $logger, $debug]];
+            return [
+                'Process' => [new ProcessCache(Credentials::getHost(Engines::PROCESS)), $logger, $debug],
+                'File' => [new FileCache(TMPDIR . DIRECTORY_SEPARATOR . 'test_cache.cache'), $logger, $debug]
+            ];
         }
 
         return [

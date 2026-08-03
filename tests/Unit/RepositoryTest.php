@@ -23,10 +23,13 @@ class RepositoryTest extends TestCase
     private $ttl = 5;
 
 
-    protected function providerLoginData(): array
+    protected static function providerLoginData(): array
     {
         if (Credentials::GIT_MODE) {
-            return ['Process' => [new ProcessCache(Credentials::getHost(Engines::PROCESS))]];
+            return [
+                'Process' => [new ProcessCache(Credentials::getHost(Engines::PROCESS))],
+                'File' => [new FileCache(Credentials::getHost(Engines::FILE))],
+            ];
         }
         return [
             'Process' => [new ProcessCache(Credentials::getHost(Engines::PROCESS))],
@@ -271,11 +274,11 @@ class RepositoryTest extends TestCase
     {
         $cache->clear();
         $keys = ["a", "b", "c"];
-        
+
         $results = $cache->getMultiple($keys);
         $this->assertEmpty($results);
         /*
-        */
+         */
         $results = $cache->getMultiple($keys, false);
         $this->assertNotEmpty($results);
         foreach ($keys as $key) {
