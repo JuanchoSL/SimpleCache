@@ -10,6 +10,7 @@ use JuanchoSL\SimpleCache\Repositories\MemCached;
 use JuanchoSL\SimpleCache\Repositories\ProcessCache;
 use JuanchoSL\SimpleCache\Repositories\RedisCache;
 use JuanchoSL\SimpleCache\Repositories\SessionCache;
+use JuanchoSL\SimpleCache\Repositories\YacCache;
 
 class EngineFactory
 {
@@ -21,7 +22,8 @@ class EngineFactory
             Engines::REDIS => new RedisCache($host),
             Engines::FILE => new FileCache($host),
             Engines::SESSION => new SessionCache($host),
-            Engines::PROCESS => new ProcessCache($host)
+            Engines::PROCESS => new ProcessCache($host),
+            Engines::YAC => new YacCache($host)
         };
     }
 }

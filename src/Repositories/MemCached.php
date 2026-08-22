@@ -125,36 +125,6 @@ class MemCached extends AbstractCache
                 return $this->server->fetchAll();
                 */
     }
-    public function increment(string $key, int|float $increment = 1, \DateInterval|null|int $ttl = null): int|float|false
-    {
-        $value = $this->get($key);
-        if (!$value) {
-            if ($this->set($key, $increment, $ttl)) {
-                return $increment;
-            }
-        } else {
-            $new_value = $value + $increment;
-            if ($this->replace($key, $new_value))
-                return $new_value;
-        }
-        return false;
-    }
-    public function decrement(string $key, int|float $decrement = 1, \DateInterval|null|int $ttl = null): int|float|false
-    {
-        $value = $this->get($key);
-        if (!$value) {
-            $decrement *= -1;
-            if ($this->set($key, $decrement, $ttl)) {
-                return $decrement;
-            }
-        } else {
-            $new_value = $value - $decrement;
-            if ($this->replace($key, $new_value)) {
-                return $new_value;
-            }
-        }
-        return false;
-    }
 
     public function setMultiple(iterable $values, \DateInterval|null|int $ttl = null): bool
     {

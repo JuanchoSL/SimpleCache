@@ -11,9 +11,28 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    name: PHP ${{ matrix.php-versions }} on ${{ matrix.os }} w/ ${{ matrix.dependencies }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        php-versions:
+          - "8.1"
+          - "8.2"
+          - "8.3"
+          - "8.4"
+          - "8.5"
+        os: [ubuntu-latest, windows-latest]
+        dependencies: ["install", "update"]
 
     steps:
+      - name: Setup PHP
+        uses: shivammathur/setup-php@main
+        with:
+          php-version: ${{ matrix.php-versions }}
+          ini-values: yac.enable_cli=1
+          extensions: yac,fileinfo,mbstring
+
       - uses: actions/checkout@main
 
       - name: Validate composer.json and composer.lock
@@ -29,7 +48,7 @@ jobs:
             ${{ runner.os }}-php-
 
       - name: Install dependencies
-        run: composer update --prefer-dist --no-progress
+        run: composer ${{ matrix.dependencies }} --prefer-dist --no-progress --ignore-platform-reqs
 
       # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
       # Docs: https://getcomposer.org/doc/articles/scripts.md
