@@ -31,7 +31,7 @@ jobs:
         with:
           php-version: ${{ matrix.php-versions }}
           extensions: yac, fileinfo, mbstring, apcu
-          ini-values: yac.enable_cli=1, apc.enable_cli=1
+          ini-values: yac.enable_cli=1, apc.enabled=1, apc.enable_cli=1
 
       - uses: actions/checkout@main
 
