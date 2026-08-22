@@ -11,4 +11,5 @@ enum Engines
     case PROCESS;
     case SESSION;
     case YAC;
+    case APCU;
 }

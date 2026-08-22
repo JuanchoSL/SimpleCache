@@ -4,6 +4,7 @@ namespace JuanchoSL\SimpleCache\Factories;
 
 use JuanchoSL\SimpleCache\Contracts\SimpleCacheInterface;
 use JuanchoSL\SimpleCache\Enums\Engines;
+use JuanchoSL\SimpleCache\Repositories\ApcuCache;
 use JuanchoSL\SimpleCache\Repositories\FileCache;
 use JuanchoSL\SimpleCache\Repositories\MemCache;
 use JuanchoSL\SimpleCache\Repositories\MemCached;
@@ -23,7 +24,8 @@ class EngineFactory
             Engines::FILE => new FileCache($host),
             Engines::SESSION => new SessionCache($host),
             Engines::PROCESS => new ProcessCache($host),
-            Engines::YAC => new YacCache($host)
+            Engines::YAC => new YacCache($host),
+            Engines::APCU => new ApcuCache()
         };
     }
 }

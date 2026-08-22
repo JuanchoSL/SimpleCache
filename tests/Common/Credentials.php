@@ -18,7 +18,8 @@ class Credentials
             Engines::FILE => dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR . 'test_cache',
             Engines::SESSION => 'test_cache',
             Engines::PROCESS => 'test_cache',
-            Engines::YAC => 'test_cache'
+            Engines::YAC => 'test_cache',
+            Engines::APCU => '',
         };
     }
 }

@@ -30,8 +30,8 @@ jobs:
         uses: shivammathur/setup-php@main
         with:
           php-version: ${{ matrix.php-versions }}
-          ini-values: yac.enable_cli=1
-          extensions: yac,fileinfo,mbstring
+          ini-values: yac.enable_cli=1;apc.enable_cli=1
+          extensions: yac,fileinfo,mbstring,apcu
 
       - uses: actions/checkout@main
 

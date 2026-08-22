@@ -3,6 +3,7 @@
     <testsuites>
         <testsuite name="All">
             <directory>./tests/</directory>
+            <exclude>./tests/Integration/PerformanceCacheTest.php</exclude>
         </testsuite>
         <testsuite name="Unit">
             <directory>./tests/Unit/</directory>
@@ -12,6 +13,7 @@
         </testsuite>
         <testsuite name="Integration">
             <directory>./tests/Integration/</directory>
+            <exclude>./tests/Integration/PerformanceCacheTest.php</exclude>
         </testsuite>
     </testsuites>
     <php>

@@ -3,6 +3,7 @@
 namespace JuanchoSL\SimpleCache\Tests\Unit;
 
 use JuanchoSL\SimpleCache\Enums\Engines;
+use JuanchoSL\SimpleCache\Repositories\ApcuCache;
 use JuanchoSL\SimpleCache\Repositories\FileCache;
 use JuanchoSL\SimpleCache\Repositories\MemCache;
 use JuanchoSL\SimpleCache\Repositories\MemCached;
@@ -30,6 +31,7 @@ class RepositoryTest extends TestCase
                 'Process' => [new ProcessCache(Credentials::getHost(Engines::PROCESS))],
                 'File' => [new FileCache(Credentials::getHost(Engines::FILE))],
                 'Yac' => [new YacCache(Credentials::getHost(Engines::YAC))],
+                'Apcu' => [new ApcuCache()],
             ];
         }
         return [
@@ -40,6 +42,7 @@ class RepositoryTest extends TestCase
             'Memcached' => [new MemCached(Credentials::getHost(Engines::MEMCACHED))],
             'Redis' => [new RedisCache(Credentials::getHost(Engines::REDIS))],
             'Yac' => [new YacCache(Credentials::getHost(Engines::YAC))],
+            'Apcu' => [new ApcuCache()],
         ];
     }
 

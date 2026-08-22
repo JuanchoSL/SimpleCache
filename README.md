@@ -12,10 +12,24 @@ composer require juanchosl/simplecache
 
 ## Performance
 
-From faster to slower
+From faster to slower (miliseconds), with a set and get data test, counting the time in miliseconds
+
+| set 10 elements  | get 10 elements  |
+|:-----------------|:-----------------|
+| <ol><li>Session: 0.0911</li><li>Apcu: 0.1049</li><li>Yac: 0.3328</li><li>File: 6.731</li><li>Redis: 7.4098</li><li>Memcached: 8.9169</li><li>Process: 9.8691</li><li>Memcache: 25.527</li></ol> | <ol><li>Apcu: 0.0889</li><li>Session: 0.0958</li><li>Yac: 0.1299</li><li>Process: 0.2308</li><li>File: 4.1699</li><li>Memcached: 6.541</li><li>Memcache: 11.636</li><li>Redis: 20.7901</li></ol> |
+
+| set 100 elements | get 100 elements |
+| ------------------- | ------------------- |
+| <ol><li>Session: 0.932</li><li>Process: 0.962</li><li>Apcu: 0.9041</li><li>Yac: 1.009</li><li>Redis: 69.5832</li><li>File: 71.667</li><li>Memcache: 165.0958</li><li>Memcached: 601.537</li></ol> | <ol><li>Process: 0.947</li><li>Session: 0.8419</li><li>Yac: 0.8719</li><li>Apcu: 1.6818</li><li>File: 18.5752</li><li>Memcache: 82.8669</li><li>Memcached: 97.2202</li><li>Redis: 134.5811</li></ol> |
+
+| set 1000 elements | get 1000 elements |
+|------------------|------------------|
+| <ol><li>Yac: 9.86</li><li>Session: 9.871</li><li>Apcu: 10.2232</li><li>Process: 10.4311</li><li>File: 593.3461</li><li>Memcached: 857.6429</li><li>Redis: 1663.4059</li><li>Memcache: 3402.5531</li></ol> | <ol><li>Session: 8.606</li><li>Process: 9.0408</li><li>Apcu: 9.0988</li><li>Yac: 9.692</li><li>File: 204.6311</li><li>Memcached: 824.0871</li><li>Memcache: 1020.0572</li><li>Redis: 2280.118</li></ol> |
 
 - Process: It's only valid for current request execution
 - Session: Only valid for a current user session
+- APCU: Cache into user scope, saved on memory for fast access. APCU Module is required
+- YAC: Cache into user scope, saved on memory for fast access. Alternative for APCU, YAC Module is required
 - Memcached: If Memcached service is available and Memcached library is installed
 - Redis: If Redis service is available and Redis library is installed
 - Memcache: If Memcached service is available and Memcache library is installed
@@ -70,10 +84,12 @@ $result = $cache->setMultiple(iterable $values, \DateInterval|int $ttl = 0);
 #### For read multiple cache indexes
 
 Read from cache the contents of `$cache_keys` and return a list of `$key => $value` pairs. Missed keys will be filled with the `$default` value if it is provided and distinct of NULL, or ignored otherwise.
+
 > default values can be:
->- a value for all (distinct of null)
->- a list with the same array indexes of the required keys and an exclusive default value or each key
->- a collection of keys => default_value (primitive, class with an __invoke method or closure)
+>
+> - a value for all (distinct of null)
+> - a list with the same array indexes of the required keys and an exclusive default value or each key
+> - a collection of keys => default_value (primitive, class with an \_\_invoke method or closure)
 
 ```php
 $cache_value = $cache->getMultiple(iterable $cache_keys, $default = null);
