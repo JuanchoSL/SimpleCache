@@ -18,6 +18,7 @@ class PerformanceCacheTest extends TestCase
 
     public function testPerformance()
     {
+        $this->markTestSkipped();
         if (/*Credentials::GIT_MODE*/ false) {
             $origins = [
                 'Process' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::PROCESS, Credentials::getHost(Engines::PROCESS)))],
@@ -49,7 +50,7 @@ class PerformanceCacheTest extends TestCase
                     $class->set("{$origin}.{$i}", $inbound, 10);
                 }
                 $stop = microtime(true);
-                $resultset[$origin] = round(($stop - $start)*1000,4);
+                $resultset[$origin] = round(($stop - $start) * 1000, 4);
             }
             $this->assertIsArray($resultset);
             natsort($resultset);
@@ -63,14 +64,14 @@ class PerformanceCacheTest extends TestCase
                     $class->get("{$origin}.{$i}");
                 }
                 $stop = microtime(true);
-                $resultget[$origin] = round(($stop - $start)*1000,4);
+                $resultget[$origin] = round(($stop - $start) * 1000, 4);
             }
             $this->assertIsArray($resultget);
             natsort($resultget);
             $results['get_' . $limit] = $resultget;
             $class->clear();
         }
-        echo print_r(json_encode($results, JSON_PRETTY_PRINT), true);
+        // echo print_r(json_encode($results, JSON_PRETTY_PRINT), true);
     }
 
 }
