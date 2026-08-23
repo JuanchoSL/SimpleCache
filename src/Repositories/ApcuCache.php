@@ -11,7 +11,7 @@ class ApcuCache extends AbstractCache
     public function __construct()
     {
         if (!extension_loaded('apcu')) {
-            //throw new ServiceUnavailableException("The extension Apcu is not available");
+            throw new ServiceUnavailableException("The extension Apcu is not available");
         }
     }
 
