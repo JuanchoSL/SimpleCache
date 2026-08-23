@@ -33,12 +33,12 @@ jobs:
         with:
           php-version: ${{ matrix.php-versions }}
           extensions: ${{ env.extensions }}
-          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          ini-values: yac.enable_cli=On, apc.enabled=On, apc.enable_cli=On
           
       - name: Cache extensions
         uses: actions/cache@main
         with:
-          path: ${{ steps.php-env.outputs.dir }}
+          path: vendor
           key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-php-
