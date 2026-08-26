@@ -26,15 +26,25 @@ class PsrSimpleCacheAdapter implements CacheInterface
 
     public function getPattern(): string
     {
+        if (method_exists($this->cache, 'getPattern')) {
+            return $this->cache->getPattern();
+        }
         return "/^[{$this->chars}{$this->extra_chars}]{1,{$this->max_lenght}}+\$/";//$this->pattern;
     }
 
     public function setExtraChars(string $extra_chars): void
     {
         $this->extra_chars = $extra_chars;
+        if (method_exists($this->cache, 'setExtraChars')) {
+            $this->cache->setExtraChars($extra_chars);
+        }
     }
     public function setMaxKeyLenght(int $max_lenght): void
     {
+        if (method_exists($this->cache, 'setMaxKeyLength')) {
+            $this->cache->setMaxKeyLength($max_lenght);
+        }
+
         if ($max_lenght < 64) {
             throw new PreconditionFailedException("The max lenght needs to be 64 or bigger");
         }
@@ -99,12 +109,18 @@ class PsrSimpleCacheAdapter implements CacheInterface
 
     protected function checkKeys(iterable $keys)
     {
+        if (method_exists($this->cache, 'checkKeys')) {
+            return true;// $this->cache->checkKeys($keys);
+        }
         foreach ($keys as $key) {
             $this->checkKey($key);
         }
     }
     protected function checkKey(string $key)
     {
+        if (method_exists($this->cache, 'checkKey')) {
+            return true;// $this->cache->checkKeys($keys);
+        }
         if (!(new StringValidations)->isNotEmpty()->isRegex($this->getPattern())->getResult($key)) {
             throw new \InvalidArgumentException("The key '{$key}' is not valid");
         }

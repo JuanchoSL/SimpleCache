@@ -41,52 +41,15 @@ class MemCache extends AbstractCache
         }
     }
 
-    public function set(string $key, mixed $value, \DateInterval|null|int $ttl = null): bool
-    {
-        $result = $this->server->set($key, $value, MEMCACHE_COMPRESSED, $this->maxTtl($ttl));
-        $this->log("The key {key} is going to save", LogLevel::INFO, ['key' => $key, 'data' => $value, 'method' => __FUNCTION__, 'result' => intval($result)]);
-        return $result;
-    }
-
-    public function touch(string $key, \DateInterval|null|int $ttl): bool
-    {
-        if (($value = $this->get($key)) !== null) {
-            return $this->set($key, $value, $ttl);
-        }
-        return false;
-    }
-
     public function getHost(): string
     {
         return $this->host . ":" . $this->port;
     }
 
-    public function delete(string $key): bool
-    {
-        $result = $this->server->delete($key);
-        $this->log("The key {key} is going to delete", LogLevel::INFO, ['key' => $key, 'method' => __FUNCTION__, 'result' => intval($result)]);
-        return $result;
-    }
-
     public function clear(): bool
     {
-        return $this->server->flush();
-    }
-
-    public function get(string $key, mixed $default = null): mixed
-    {
-        $result = $this->server->get($key);
-        if ($result === false) {
-            $this->log("The key {key} does not exists", LogLevel::INFO, ['key' => $key, 'method' => __FUNCTION__]);
-            $result = (is_callable($default)) ? $default() : $default;
-        }
-        return $result;
-    }
-
-    public function replace(string $key, mixed $value): bool
-    {
-        $result = $this->server->replace($key, $value);
-        $this->log("The key {key} is going to be replaced", LogLevel::INFO, ['key' => $key, 'data' => ['new' => $value], 'method' => __FUNCTION__, 'result' => intval($result)]);
+        $result = $this->server->flush();
+        $this->log("Cleared cache {prefix}", LogLevel::DEBUG, ['prefix' => $this->getHost(), 'method' => __FUNCTION__, 'result' => intval($result)]);
         return $result;
     }
 
@@ -112,6 +75,45 @@ class MemCache extends AbstractCache
             }
         }
         return $keysFound;
+    }
+    public function get(string $key, mixed $default = null): mixed
+    {
+        $this->checkKey($key);
+        $result = $this->server->get($key);
+        if ($result === false) {
+            $this->log("The key {key} does not exists", LogLevel::INFO, ['key' => $key, 'method' => __FUNCTION__]);
+            $result = (is_callable($default)) ? $default() : $default;
+        }
+        return $result;
+    }
+
+    public function set(string $key, mixed $value, \DateInterval|null|int $ttl = null): bool
+    {
+        $ttl = $this->maxTtl($ttl);
+        if ($ttl > 0) {
+            $this->checkKey($key);
+            $result = $this->server->set($key, $value, MEMCACHE_COMPRESSED, $ttl);
+            $this->log("The key {key} is going to save", LogLevel::INFO, ['key' => $key, 'data' => $value, 'method' => __FUNCTION__, 'result' => intval($result)]);
+            return $result;
+        } else {
+            return $this->delete($key);
+        }
+    }
+
+    public function delete(string $key): bool
+    {
+        $this->checkKey($key);
+        $result = $this->server->delete($key);
+        $this->log("The key {key} is going to delete", LogLevel::INFO, ['key' => $key, 'method' => __FUNCTION__, 'result' => intval($result)]);
+        return $result;
+    }
+
+    public function replace(string $key, mixed $value): bool
+    {
+        $this->checkKey($key);
+        $result = $this->server->replace($key, $value);
+        $this->log("The key {key} is going to be replaced", LogLevel::INFO, ['key' => $key, 'data' => ['new' => $value], 'method' => __FUNCTION__, 'result' => intval($result)]);
+        return $result;
     }
 
     public function __destruct()

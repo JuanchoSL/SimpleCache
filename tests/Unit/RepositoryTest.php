@@ -2,6 +2,7 @@
 
 namespace JuanchoSL\SimpleCache\Tests\Unit;
 
+use JuanchoSL\Exceptions\PreconditionFailedException;
 use JuanchoSL\SimpleCache\Enums\Engines;
 use JuanchoSL\SimpleCache\Repositories\ApcuCache;
 use JuanchoSL\SimpleCache\Repositories\FileCache;
@@ -30,6 +31,7 @@ class RepositoryTest extends TestCase
             return [
                 'Process' => [new ProcessCache(Credentials::getHost(Engines::PROCESS))],
                 'File' => [new FileCache(Credentials::getHost(Engines::FILE))],
+                'Session' => [new SessionCache(Credentials::getHost(Engines::SESSION))],
                 'Yac' => [new YacCache(Credentials::getHost(Engines::YAC))],
                 'Apcu' => [new ApcuCache()],
             ];
@@ -372,4 +374,89 @@ class RepositoryTest extends TestCase
 
         $cache->clear();
     }
+
+
+    /**
+     * @dataProvider providerLoginData
+     */
+    public function testInvalidKeySet($cache)
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $cache->set("algo@", 'some data', 1);
+    }
+
+    /**
+     * @dataProvider providerLoginData
+     */
+    public function testInvalidKeyGet($cache)
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $cache->get("algo@");
+    }
+
+    /**
+     * @dataProvider providerLoginData
+     */
+    public function testInvalidKeyDelete($cache)
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $cache->delete("algo@");
+    }
+    /**
+     * @dataProvider providerLoginData
+     */
+    public function testInvalidKeySetMultiple($cache)
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $cache->setMultiple(["algo@" => 'some data'], 1);
+    }
+
+    /**
+     * @dataProvider providerLoginData
+     */
+    public function testInvalidKeyGetMultiple($cache)
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $cache->getMultiple(["algo@"]);
+    }
+
+    /**
+     * @dataProvider providerLoginData
+     */
+    public function testInvalidKeyDeleteMultiple($cache)
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $cache->deleteMultiple(["algo@"]);
+    }
+
+    /**
+     * @dataProvider providerLoginData
+     */
+    public function testInvalidKeyChars($cache)
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $cache->setExtraChars('@');
+    }
+
+    /**
+     * @dataProvider providerLoginData
+     */
+    public function testValidKey($cache)
+    {
+        $cache->setExtraChars('-');
+        $cache->set("algo-", 'some data', 10);
+        $result = $cache->get("algo-");
+        $this->assertEquals('some data', $result);
+        $cache->clear();
+    }
+
+    /**
+     * @dataProvider providerLoginData
+     */
+    public function testInvalidKeyLenght($cache)
+    {
+        $this->expectException(PreconditionFailedException::class);
+        $cache->setMaxKeyLenght(25);
+    }
+
 }

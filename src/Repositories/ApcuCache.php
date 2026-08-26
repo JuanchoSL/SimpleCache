@@ -15,60 +15,9 @@ class ApcuCache extends AbstractCache
         }
     }
 
-    public function has(string $key): bool
-    {
-        return !empty(apcu_exists($key));
-    }
-
-    public function set(string $key, mixed $value, \DateInterval|null|int $ttl = null): bool
-    {
-        $result = apcu_store($key, $value, $this->maxTtl($ttl));
-        $this->log("The key {key} is going to save", LogLevel::INFO, ['key' => $key, 'data' => $value, 'method' => __FUNCTION__, 'result' => intval($result)]);
-        return ($result === true);
-    }
-
-    public function touch(string $key, \DateInterval|null|int $ttl): bool
-    {
-        if (($value = $this->get($key)) !== null) {
-            return $this->set($key, $value, $ttl);
-        }
-        return false;
-    }
-
     public function getHost(): string
     {
         return '';
-    }
-
-    public function delete(string $key): bool
-    {
-        $result = apcu_delete($key);
-        $this->log("The key {key} is going to delete", LogLevel::INFO, ['key' => $key, 'method' => __FUNCTION__, 'result' => intval($result)]);
-        return ($result === true);
-    }
-
-    public function clear(): bool
-    {
-        return apcu_clear_cache();
-    }
-
-    public function get(string $key, mixed $default = null): mixed
-    {
-        $result = apcu_fetch($key, $success);
-        if ($result === false) {
-            $this->log("The key {key} does not exists", LogLevel::INFO, ['key' => $key, 'method' => __FUNCTION__]);
-            $result = (is_callable($default)) ? $default() : $default;
-        }
-        return $result;
-    }
-
-    public function replace(string $key, mixed $value): bool
-    {
-
-        $ttl = ($this->has($key)) ? apcu_key_info($key)['ttl'] : $this->maxTtl();
-        $result = $this->set($key, $value, $ttl);
-        $this->log("The key {key} is going to be replaced", LogLevel::INFO, ['key' => $key, 'data' => ['new' => $value], 'method' => __FUNCTION__, 'result' => intval($result)]);
-        return $result;
     }
 
     /**
@@ -80,17 +29,71 @@ class ApcuCache extends AbstractCache
         return array_column($keysFound, "cache_list");
     }
 
+    public function clear(): bool
+    {
+        $result = apcu_clear_cache();
+        $this->log("Cleared cache {prefix}", LogLevel::DEBUG, ['prefix' => $this->getHost(), 'method' => __FUNCTION__, 'result' => intval($result)]);
+        return $result;
+    }
+
+    public function has(string $key): bool
+    {
+        $this->checkKey($key);
+        return !empty(apcu_exists($key));
+    }
+
+    public function get(string $key, mixed $default = null): mixed
+    {
+        $this->checkKey($key);
+        $result = apcu_fetch($key, $success);
+        if ($result === false) {
+            $this->log("The key {key} does not exists", LogLevel::INFO, ['key' => $key, 'method' => __FUNCTION__]);
+            $result = (is_callable($default)) ? $default() : $default;
+        }
+        return $result;
+    }
+
+    public function set(string $key, mixed $value, \DateInterval|null|int $ttl = null): bool
+    {
+        $ttl = $this->maxTtl($ttl);
+        if ($ttl > 0) {
+            $this->checkKey($key);
+            $result = apcu_store($key, $value, $ttl);
+            $this->log("The key {key} is going to save", LogLevel::INFO, ['key' => $key, 'data' => $value, 'method' => __FUNCTION__, 'result' => intval($result)]);
+            return ($result === true);
+        } else {
+            return $this->delete($key);
+        }
+    }
+
+    public function delete(string $key): bool
+    {
+        $this->checkKey($key);
+        $result = apcu_delete($key);
+        $this->log("The key {key} is going to delete", LogLevel::INFO, ['key' => $key, 'method' => __FUNCTION__, 'result' => intval($result)]);
+        return ($result === true);
+    }
+
+    public function replace(string $key, mixed $value): bool
+    {
+        $this->checkKey($key);
+        $ttl = ($this->has($key)) ? apcu_key_info($key)['ttl'] : $this->maxTtl();
+        $result = $this->set($key, $value, $ttl);
+        $this->log("The key {key} is going to be replaced", LogLevel::INFO, ['key' => $key, 'data' => ['new' => $value], 'method' => __FUNCTION__, 'result' => intval($result)]);
+        return $result;
+    }
+
     public function increment(string $key, int|float $increment = 1, \DateInterval|null|int $ttl = null): int|float|false
     {
-
-        if (!apcu_exists($key)) {
+        $this->checkKey($key);
+        if (!$this->has($key)) {
             if ($this->set($key, $increment, $ttl)) {
                 return $increment;
             }
         } elseif (false && is_integer($increment)) {
             return apcu_inc($key, $increment, $success);
         } else {
-            $value = $this->get($key);
+            $value = $this->get($key, 0);
             $new_value = $value + $increment;
             if ($this->replace($key, $new_value)) {
                 return $new_value;
@@ -100,7 +103,8 @@ class ApcuCache extends AbstractCache
     }
     public function decrement(string $key, int|float $decrement = 1, \DateInterval|null|int $ttl = null): int|float|false
     {
-        if (!apcu_exists($key)) {
+        $this->checkKey($key);
+        if (!$this->has($key)) {
             $decrement *= -1;
             if ($this->set($key, $decrement, $ttl)) {
                 return $decrement;
@@ -108,7 +112,7 @@ class ApcuCache extends AbstractCache
         } elseif (false && is_integer($decrement)) {
             return apcu_dec($key, $decrement);
         } else {
-            $value = $this->get($key);
+            $value = $this->get($key, 0);
             $new_value = $value - $decrement;
             if ($this->replace($key, $new_value)) {
                 return $new_value;
@@ -119,8 +123,14 @@ class ApcuCache extends AbstractCache
 
     public function setMultiple(iterable $values, \DateInterval|null|int $ttl = null): bool
     {
-        $result = apcu_store((array) $values, null, $this->maxTtl($ttl));
-        return ($result === true or (is_array($result) && empty($result)));
+        $ttl = $this->maxTtl($ttl);
+        if ($ttl > 0) {
+            $this->checkKeys($values);
+            $result = apcu_store((array) $values, null, $ttl);
+            return ($result === true or (is_array($result) && empty($result)));
+        } else {
+            return $this->deleteMultiple($values);
+        }
     }
 
     /**
@@ -128,6 +138,7 @@ class ApcuCache extends AbstractCache
      */
     public function getMultiple(iterable $keys, mixed $default = null): iterable
     {
+        $this->checkKeys($keys);
         $default_value = $default;
         $results = apcu_fetch((array) $keys, $success);
         if (!$results or (is_array($results) and count($results) < count($keys))) {
@@ -147,8 +158,17 @@ class ApcuCache extends AbstractCache
 
     public function deleteMultiple(iterable $keys): bool
     {
+        $this->checkKeys($keys);
         $result = apcu_delete($keys);
-        return ($result === true or (is_array($result) && empty($result)));
+        $fails = 0;
+        $success = count($keys);
+        if ($result !== true) {
+            if (is_array($result)) {
+                $fails = count($result);
+            }
+        }
+        $this->log("Some keys are going to be deleted", LogLevel::DEBUG, ['keys' => $keys, 'method' => __FUNCTION__, 'result' => ['ok' => $success, 'ko' => $fails]]);
+        return ($fails === 0);
     }
 
 }
