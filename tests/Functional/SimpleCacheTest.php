@@ -19,12 +19,14 @@ class SimpleCacheTest extends TestCase
     private $value_array = ['value'];
     private $ttl = 5;
 
-    protected static function providerLoginData($cache): array
+    public static function providerLoginData($cache): array
     {
         if (Credentials::GIT_MODE) {
             return [
                 'Process' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::PROCESS, Credentials::getHost(Engines::PROCESS)))],
-                'File' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::FILE, Credentials::getHost(Engines::FILE)))]
+                'File' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::FILE, Credentials::getHost(Engines::FILE)))],
+                'Yac' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::YAC, Credentials::getHost(Engines::YAC)))],
+                'Apcu' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::APCU, ''))]
             ];
         }
         return [
@@ -34,6 +36,8 @@ class SimpleCacheTest extends TestCase
             'Memcache' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::MEMCACHE, Credentials::getHost(Engines::MEMCACHE)))],
             'Memcached' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::MEMCACHED, Credentials::getHost(Engines::MEMCACHED)))],
             'Redis' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::REDIS, Credentials::getHost(Engines::REDIS)))],
+            'Yac' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::YAC, Credentials::getHost(Engines::YAC)))],
+            'Apcu' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::APCU, ''))]
         ];
     }
 
@@ -54,8 +58,8 @@ class SimpleCacheTest extends TestCase
     {
         $name = str_replace('\\', '_', get_class($cache));
         $interval = DateInterval::createFromDateString("+{$this->ttl} seconds");
-        $result = $cache->set("{$name}.key", $this->value_plain, $interval);
-        //$result = $cache->set("{$name}.key", $this->value_plain, $this->ttl);
+        $result = $cache->set(md5($name) . ".key", $this->value_plain, $interval);
+        //$result = $cache->set(md5($name).".key", $this->value_plain, $this->ttl);
         $this->assertTrue($result);
         $cache->clear();
     }
@@ -67,10 +71,10 @@ class SimpleCacheTest extends TestCase
     {
         $name = str_replace('\\', '_', get_class($cache));
         $interval = DateInterval::createFromDateString("+{$this->ttl} seconds");
-        $result = $cache->set("{$name}.key", $this->value_plain, $interval);
-        //$result = $cache->set("{$name}.key", $this->value_plain, $this->ttl);
+        $result = $cache->set(md5($name) . ".key", $this->value_plain, $interval);
+        //$result = $cache->set(md5($name).".key", $this->value_plain, $this->ttl);
         $this->assertTrue($result);
-        $read_ok = $cache->get("{$name}.key");
+        $read_ok = $cache->get(md5($name) . ".key");
         $this->assertEquals($this->value_plain, $read_ok);
         $cache->clear();
     }
@@ -82,11 +86,11 @@ class SimpleCacheTest extends TestCase
     {
         $name = str_replace('\\', '_', get_class($cache));
         $interval = DateInterval::createFromDateString("+{$this->ttl} seconds");
-        $result = $cache->set("{$name}.key", $this->value_plain, $interval);
-        //$result = $cache->set("{$name}.key", $this->value_plain, $this->ttl);
+        $result = $cache->set(md5($name) . ".key", $this->value_plain, $interval);
+        //$result = $cache->set(md5($name).".key", $this->value_plain, $this->ttl);
         $this->assertTrue($result);
         sleep($this->ttl + 1);
-        $read_ko = $cache->get("{$name}.key");
+        $read_ko = $cache->get(md5($name) . ".key");
         $this->assertNull($read_ko);
         $cache->clear();
     }
@@ -97,13 +101,13 @@ class SimpleCacheTest extends TestCase
     public function testDelete($cache)
     {
         $name = str_replace('\\', '_', get_class($cache));
-        $result = $cache->set("{$name}.key", $this->value_plain, $this->ttl);
+        $result = $cache->set(md5($name) . ".key", $this->value_plain, $this->ttl);
         $this->assertTrue($result);
-        $read_ok = $cache->get("{$name}.key");
+        $read_ok = $cache->get(md5($name) . ".key");
         $this->assertEquals($this->value_plain, $read_ok);
-        $result = $cache->delete("{$name}.key");
+        $result = $cache->delete(md5($name) . ".key");
         $this->assertTrue($result);
-        $read_ko = $cache->get("{$name}.key");
+        $read_ko = $cache->get(md5($name) . ".key");
         $this->assertNull($read_ko);
         $cache->clear();
     }
@@ -115,9 +119,9 @@ class SimpleCacheTest extends TestCase
     public function testSetArray($cache)
     {
         $name = str_replace('\\', '_', get_class($cache));
-        $result = $cache->set("{$name}.array", ['key' => 'value'], $this->ttl);
+        $result = $cache->set(md5($name) . ".array", ['key' => 'value'], $this->ttl);
         $this->assertTrue($result);
-        $results = $cache->get("{$name}.array");
+        $results = $cache->get(md5($name) . ".array");
         $this->assertIsArray($results);
         $this->assertNotEmpty($results);
         $this->assertArrayHasKey('key', $results);
@@ -133,9 +137,9 @@ class SimpleCacheTest extends TestCase
         $name = str_replace('\\', '_', get_class($cache));
         $obj = new stdClass;
         $obj->key = 'value';
-        $result = $cache->set("{$name}.object", $obj, $this->ttl);
+        $result = $cache->set(md5($name) . ".obj", $obj, $this->ttl);
         $this->assertTrue($result);
-        $results = $cache->get("{$name}.object");
+        $results = $cache->get(md5($name) . ".obj");
         $this->assertIsObject($results);
         $this->assertObjectHasProperty('key', $results);
         $this->assertEquals('value', $results->key);
@@ -230,7 +234,6 @@ class SimpleCacheTest extends TestCase
     public function testValidKey($cache)
     {
         $cache->setExtraChars('@');
-        //echo $cache->getPattern();exit;
         $cache->set("algo@", 'some data', 10);
         $result = $cache->get("algo@");
         $this->assertEquals('some data', $result);
@@ -253,17 +256,17 @@ class SimpleCacheTest extends TestCase
     {
         $name = md5(str_replace('\\', '-', get_class($cache)));
 
-        $results = $cache->get("{$name}.key");
+        $results = $cache->get(md5($name) . ".key");
         $this->assertEmpty($results);
         $this->assertIsNotArray($results);
 
-        $results = $cache->get("{$name}.key", ['key' => 'value']);
+        $results = $cache->get(md5($name) . ".key", ['key' => 'value']);
         $this->assertNotEmpty($results);
         $this->assertIsArray($results);
         $this->assertArrayHasKey('key', $results);
         $this->assertEquals('value', $results['key']);
 
-        $results = $cache->get("{$name}.key", function () {
+        $results = $cache->get(md5($name) . ".key", function () {
             return ['key' => 'value'];
         });
         $this->assertNotEmpty($results);
@@ -273,13 +276,13 @@ class SimpleCacheTest extends TestCase
 
         $std = new stdClass();
         $std->key = 'value';
-        $results = $cache->get("{$name}.key", $std);
+        $results = $cache->get(md5($name) . ".key", $std);
         $this->assertNotEmpty($results);
         $this->assertIsObject($results);
         $this->assertObjectHasProperty('key', $results);
         $this->assertEquals('value', $results->key);
 
-        $results = $cache->get("{$name}.key", function () {
+        $results = $cache->get(md5($name) . ".key", function () {
             $std = new stdClass();
             $std->key = 'value';
             return $std;

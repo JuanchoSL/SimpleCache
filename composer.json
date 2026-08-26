@@ -9,6 +9,8 @@
         "memcache cache",
         "memcached cache",
         "redis cache",
+        "yac cache",
+        "apcu cache",
         "session cache",
         "file cache",
         "process cache",

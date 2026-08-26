@@ -3,13 +3,14 @@
 namespace JuanchoSL\SimpleCache\Tests\Unit;
 
 use JuanchoSL\SimpleCache\Enums\Engines;
-use JuanchoSL\SimpleCache\Factories\EngineFactory;
+use JuanchoSL\SimpleCache\Repositories\ApcuCache;
 use JuanchoSL\SimpleCache\Repositories\FileCache;
 use JuanchoSL\SimpleCache\Repositories\MemCache;
 use JuanchoSL\SimpleCache\Repositories\MemCached;
 use JuanchoSL\SimpleCache\Repositories\ProcessCache;
 use JuanchoSL\SimpleCache\Repositories\RedisCache;
 use JuanchoSL\SimpleCache\Repositories\SessionCache;
+use JuanchoSL\SimpleCache\Repositories\YacCache;
 use JuanchoSL\SimpleCache\Tests\Common\Credentials;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -23,12 +24,14 @@ class RepositoryTest extends TestCase
     private $ttl = 5;
 
 
-    protected static function providerLoginData(): array
+    public static function providerLoginData(): array
     {
         if (Credentials::GIT_MODE) {
             return [
                 'Process' => [new ProcessCache(Credentials::getHost(Engines::PROCESS))],
                 'File' => [new FileCache(Credentials::getHost(Engines::FILE))],
+                'Yac' => [new YacCache(Credentials::getHost(Engines::YAC))],
+                'Apcu' => [new ApcuCache()],
             ];
         }
         return [
@@ -38,6 +41,8 @@ class RepositoryTest extends TestCase
             'Memcache' => [new MemCache(Credentials::getHost(Engines::MEMCACHE))],
             'Memcached' => [new MemCached(Credentials::getHost(Engines::MEMCACHED))],
             'Redis' => [new RedisCache(Credentials::getHost(Engines::REDIS))],
+            'Yac' => [new YacCache(Credentials::getHost(Engines::YAC))],
+            'Apcu' => [new ApcuCache()],
         ];
     }
 
@@ -47,7 +52,7 @@ class RepositoryTest extends TestCase
     public function testSet($cache)
     {
         $name = str_replace('\\', '-', get_class($cache));
-        $result = $cache->set("{$name}.key", $this->value_plain, $this->ttl);
+        $result = $cache->set(md5($name) . ".key", $this->value_plain, $this->ttl);
         $this->assertTrue($result);
         $cache->clear();
     }
@@ -58,9 +63,9 @@ class RepositoryTest extends TestCase
     public function testGetOk($cache)
     {
         $name = str_replace('\\', '-', get_class($cache));
-        $result = $cache->set("{$name}.key", $this->value_plain, $this->ttl);
+        $result = $cache->set(md5($name) . ".key", $this->value_plain, $this->ttl);
         $this->assertTrue($result);
-        $read_ok = $cache->get("{$name}.key");
+        $read_ok = $cache->get(md5($name) . ".key");
         $this->assertEquals($this->value_plain, $read_ok);
         $cache->clear();
     }
@@ -71,10 +76,10 @@ class RepositoryTest extends TestCase
     public function testGetKo($cache)
     {
         $name = str_replace('\\', '-', get_class($cache));
-        $result = $cache->set("{$name}.key", $this->value_plain, $this->ttl);
+        $result = $cache->set(md5($name) . ".key", $this->value_plain, $this->ttl);
         $this->assertTrue($result);
         sleep($this->ttl + 1);
-        $read_ko = $cache->get("{$name}.key");
+        $read_ko = $cache->get(md5($name) . ".key");
         $this->assertNull($read_ko);
         $cache->clear();
     }
@@ -85,15 +90,15 @@ class RepositoryTest extends TestCase
     public function testTouch($cache)
     {
         $name = str_replace('\\', '-', get_class($cache));
-        $result = $cache->set("{$name}.key", $this->value_plain, $this->ttl);
+        $result = $cache->set(md5($name) . ".key", $this->value_plain, $this->ttl);
         $this->assertTrue($result);
-        $read_ok = $cache->get("{$name}.key");
+        $read_ok = $cache->get(md5($name) . ".key");
         $this->assertEquals($this->value_plain, $read_ok);
         sleep(intval($this->ttl / 2));
-        $touch = $cache->touch("{$name}.key", $this->ttl);
+        $touch = $cache->touch(md5($name) . ".key", $this->ttl);
         $this->assertTrue($touch);
         sleep(intval($this->ttl / 2) + 1);
-        $read_ok = $cache->get("{$name}.key");
+        $read_ok = $cache->get(md5($name) . ".key");
         $this->assertEquals($this->value_plain, $read_ok);
         $cache->clear();
     }
@@ -104,13 +109,13 @@ class RepositoryTest extends TestCase
     public function testReplace($cache)
     {
         $name = str_replace('\\', '-', get_class($cache));
-        $result = $cache->set("{$name}.key", $this->value_plain, $this->ttl);
+        $result = $cache->set(md5($name) . ".key", $this->value_plain, $this->ttl);
         $this->assertTrue($result);
-        $read_ok = $cache->get("{$name}.key");
+        $read_ok = $cache->get(md5($name) . ".key");
         $this->assertEquals($this->value_plain, $read_ok);
-        $replace = $cache->replace("{$name}.key", $this->value_plain . "-" . $this->value_plain);
+        $replace = $cache->replace(md5($name) . ".key", $this->value_plain . "-" . $this->value_plain);
         $this->assertTrue($replace);
-        $read_ok = $cache->get("{$name}.key");
+        $read_ok = $cache->get(md5($name) . ".key");
         $this->assertEquals($this->value_plain . "-" . $this->value_plain, $read_ok);
         $cache->clear();
     }
@@ -121,13 +126,13 @@ class RepositoryTest extends TestCase
     public function testDelete($cache)
     {
         $name = str_replace('\\', '-', get_class($cache));
-        $result = $cache->set("{$name}.key", $this->value_plain, $this->ttl);
+        $result = $cache->set(md5($name) . ".key", $this->value_plain, $this->ttl);
         $this->assertTrue($result);
-        $read_ok = $cache->get("{$name}.key");
+        $read_ok = $cache->get(md5($name) . ".key");
         $this->assertEquals($this->value_plain, $read_ok);
-        $result = $cache->delete("{$name}.key");
+        $result = $cache->delete(md5($name) . ".key");
         $this->assertTrue($result);
-        $read_ko = $cache->get("{$name}.key");
+        $read_ko = $cache->get(md5($name) . ".key");
         $this->assertNull($read_ko);
         $cache->clear();
     }
@@ -138,12 +143,12 @@ class RepositoryTest extends TestCase
     /*
     public function testAllKeys($cache)
     {
-        $result = $cache->set("{$name}.key", $this->value_plain, $this->ttl);
+        $result = $cache->set(md5($name).".key", $this->value_plain, $this->ttl);
         $this->assertTrue($result);
         $results = $cache->getAllKeys($cache);
         $this->assertIsArray($results);
         $this->assertNotEmpty($results);
-        $this->assertContains("{$name}.key", $results);
+        $this->assertContains(md5($name).".key", $results);
         print_r($result);
         $cache->clear();
         }
@@ -154,9 +159,9 @@ class RepositoryTest extends TestCase
     public function testSetArray($cache)
     {
         $name = str_replace('\\', '-', get_class($cache));
-        $result = $cache->set("{$name}.array", ['key' => 'value'], $this->ttl);
+        $result = $cache->set(md5($name) . ".array", ['key' => 'value'], $this->ttl);
         $this->assertTrue($result);
-        $results = $cache->get("{$name}.array");
+        $results = $cache->get(md5($name) . ".array");
         $this->assertIsArray($results);
         $this->assertNotEmpty($results);
         $this->assertArrayHasKey('key', $results);
@@ -172,9 +177,9 @@ class RepositoryTest extends TestCase
         $name = str_replace('\\', '-', get_class($cache));
         $obj = new stdClass;
         $obj->key = 'value';
-        $result = $cache->set("{$name}.object", $obj, $this->ttl);
+        $result = $cache->set(md5($name) . ".obj", $obj, $this->ttl);
         $this->assertTrue($result);
-        $results = $cache->get("{$name}.object");
+        $results = $cache->get(md5($name) . ".obj");
         $this->assertIsObject($results);
         $this->assertObjectHasProperty('key', $results);
         $this->assertEquals('value', $results->key);
@@ -187,11 +192,11 @@ class RepositoryTest extends TestCase
     public function testIncrement($cache)
     {
         $name = str_replace('\\', '-', get_class($cache));
-        $initial = $cache->increment("{$name}.key_increment", 1, $this->ttl);
+        $initial = $cache->increment(md5($name) . ".ki", 1, $this->ttl);
         $this->assertEquals(1, $initial);
-        $initial = $cache->increment("{$name}.key_increment", 1, $this->ttl);
+        $initial = $cache->increment(md5($name) . ".ki", 1, $this->ttl);
         $this->assertEquals(2, $initial);
-        $initial = $cache->increment("{$name}.key_increment", 2, $this->ttl);
+        $initial = $cache->increment(md5($name) . ".ki", 2, $this->ttl);
         $this->assertEquals(4, $initial);
         $cache->clear();
     }
@@ -202,11 +207,11 @@ class RepositoryTest extends TestCase
     public function testDecrement($cache)
     {
         $name = str_replace('\\', '-', get_class($cache));
-        $initial = $cache->decrement("{$name}.key_decrement", 1, $this->ttl);
+        $initial = $cache->decrement(md5($name) . ".kd", 1, $this->ttl);
         $this->assertEquals(-1, $initial);
-        $initial = $cache->decrement("{$name}.key_decrement", 1, $this->ttl);
+        $initial = $cache->decrement(md5($name) . ".kd", 1, $this->ttl);
         $this->assertEquals(-2, $initial);
-        $initial = $cache->decrement("{$name}.key_decrement", 2, $this->ttl);
+        $initial = $cache->decrement(md5($name) . ".kd", 2, $this->ttl);
         $this->assertEquals(-4, $initial);
         $cache->clear();
     }
@@ -217,11 +222,11 @@ class RepositoryTest extends TestCase
     public function testIncrementFloat($cache)
     {
         $name = str_replace('\\', '-', get_class($cache));
-        $initial = $cache->increment("{$name}.key_increment_float", 1.5, $this->ttl);
+        $initial = $cache->increment(md5($name) . ".kif", 1.5, $this->ttl);
         $this->assertEquals(1.5, $initial);
-        $initial = $cache->increment("{$name}.key_increment_float", 1.5, $this->ttl);
+        $initial = $cache->increment(md5($name) . ".kif", 1.5, $this->ttl);
         $this->assertEquals(3, $initial);
-        $initial = $cache->increment("{$name}.key_increment_float", 2, $this->ttl);
+        $initial = $cache->increment(md5($name) . ".kif", 2, $this->ttl);
         $this->assertEquals(5, $initial);
         $cache->clear();
     }
@@ -232,13 +237,13 @@ class RepositoryTest extends TestCase
     public function testDecrementFloat($cache)
     {
         $name = str_replace('\\', '-', get_class($cache));
-        $initial = $cache->decrement("{$name}.key_decrement_float", 1.5, $this->ttl);
+        $initial = $cache->decrement(md5($name) . ".kdf", 1.5, $this->ttl);
         $this->assertEquals(-1.5, $initial);
-        $initial = $cache->decrement("{$name}.key_decrement_float", 1.5, $this->ttl);
+        $initial = $cache->decrement(md5($name) . ".kdf", 1.5, $this->ttl);
         $this->assertEquals(-3, $initial);
-        $initial = $cache->decrement("{$name}.key_decrement_float", 1.5, $this->ttl);
+        $initial = $cache->decrement(md5($name) . ".kdf", 1.5, $this->ttl);
         $this->assertEquals(-4.5, $initial);
-        $initial = $cache->decrement("{$name}.key_decrement_float", 1, $this->ttl);
+        $initial = $cache->decrement(md5($name) . ".kdf", 1, $this->ttl);
         $this->assertEquals(-5.5, $initial);
         $cache->clear();
     }
@@ -326,20 +331,20 @@ class RepositoryTest extends TestCase
     public function testRetrieveDefault($cache)
     {
         $name = str_replace('\\', '-', get_class($cache));
-        //$result = $cache->set("{$name}.array", ['key' => 'value'], $this->ttl);
+        //$result = $cache->set(md5($name).".array", ['key' => 'value'], $this->ttl);
         //$this->assertTrue($result);
 
-        $results = $cache->get("{$name}.array");
+        $results = $cache->get(md5($name) . ".array");
         $this->assertEmpty($results);
         $this->assertIsNotArray($results);
 
-        $results = $cache->get("{$name}.array", ['key' => 'value']);
+        $results = $cache->get(md5($name) . ".array", ['key' => 'value']);
         $this->assertNotEmpty($results);
         $this->assertIsArray($results);
         $this->assertArrayHasKey('key', $results);
         $this->assertEquals('value', $results['key']);
 
-        $results = $cache->get("{$name}.array", function () {
+        $results = $cache->get(md5($name) . ".array", function () {
             return ['key' => 'value'];
         });
         $this->assertNotEmpty($results);
@@ -349,13 +354,13 @@ class RepositoryTest extends TestCase
 
         $std = new stdClass();
         $std->key = 'value';
-        $results = $cache->get("{$name}.array", $std);
+        $results = $cache->get(md5($name) . ".array", $std);
         $this->assertNotEmpty($results);
         $this->assertIsObject($results);
         $this->assertObjectHasProperty('key', $results);
         $this->assertEquals('value', $results->key);
 
-        $results = $cache->get("{$name}.array", function () {
+        $results = $cache->get(md5($name) . ".array", function () {
             $std = new stdClass();
             $std->key = 'value';
             return $std;

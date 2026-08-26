@@ -10,4 +10,6 @@ enum Engines
     case FILE;
     case PROCESS;
     case SESSION;
+    case YAC;
+    case APCU;
 }

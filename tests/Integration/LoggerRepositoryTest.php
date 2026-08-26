@@ -24,7 +24,7 @@ class LoggerRepositoryTest extends TestCase
     private $ttl = 5;
 
     private static $file_path;
-    protected static function providerLoginData(): array
+    public static function providerLoginData(): array
     {
         $debug = true;
         defined('TMPDIR') or define('TMPDIR', sys_get_temp_dir());
