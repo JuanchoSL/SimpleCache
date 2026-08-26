@@ -26,8 +26,8 @@ class SimpleCacheTest extends TestCase
                 'Process' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::PROCESS, Credentials::getHost(Engines::PROCESS)))],
                 'File' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::FILE, Credentials::getHost(Engines::FILE)))],
                 'Session' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::SESSION, Credentials::getHost(Engines::SESSION)))],
-                //'Yac' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::YAC, Credentials::getHost(Engines::YAC)))],
-                //'Apcu' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::APCU, ''))]
+                'Yac' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::YAC, Credentials::getHost(Engines::YAC)))],
+                'Apcu' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::APCU, ''))]
             ];
         }
         return [
