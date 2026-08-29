@@ -34,6 +34,7 @@ class RepositoryTest extends TestCase
                 'Session' => [new SessionCache(Credentials::getHost(Engines::SESSION))],
                 'Yac' => [new YacCache(Credentials::getHost(Engines::YAC))],
                 'Apcu' => [new ApcuCache()],
+                'Memcached' => [new MemCached(Credentials::getHost(Engines::MEMCACHED))],
             ];
         }
         return [
