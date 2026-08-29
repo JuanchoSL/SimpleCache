@@ -1,4 +1,4 @@
-name: PHP Composer and Tests
+name: PHP Composer and Tests for Win without Docker
 
 on:
   push:
@@ -24,7 +24,7 @@ jobs:
         os: [windows-latest]
         dependencies: ["install", "update"]
     env:
-      extensions: yac, fileinfo, mbstring, apcu, memcached, redis
+      extensions: yac, fileinfo, mbstring, apcu, memcache, memcached, redis
       key: extensions-php
 
     steps:

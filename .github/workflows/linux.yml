@@ -1,4 +1,4 @@
-name: PHP Composer and Tests
+name: PHP Composer and Tests for Linux using Docker
 
 on:
   push:
