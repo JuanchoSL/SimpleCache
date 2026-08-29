@@ -29,6 +29,7 @@ class SimpleCacheTest extends TestCase
                 'Yac' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::YAC, Credentials::getHost(Engines::YAC)))],
                 'Apcu' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::APCU, ''))],
                 'Memcached' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::MEMCACHED, Credentials::getHost(Engines::MEMCACHED)))],
+                'Redis' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::REDIS, Credentials::getHost(Engines::REDIS)))],
             ];
         }
         return [
