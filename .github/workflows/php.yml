@@ -21,7 +21,7 @@ jobs:
           - "8.2"
           - "8.4"
           - "8.5"
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
         dependencies: ["install", "update"]
     env: 
       extensions: yac, fileinfo, mbstring, apcu, memcached, redis

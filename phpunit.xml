@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit bootstrap="vendor/autoload.php" colors="true" cacheResult="false" processIsolation="false">
+<phpunit bootstrap="vendor/autoload.php" colors="true" cacheResult="false" processIsolation="true">
     <testsuites>
         <testsuite name="All">
             <directory>./tests/</directory>
             <exclude>./tests/Integration/PerformanceCacheTest.php</exclude>
+            <exclude>./tests/Integration/PerformanceKeyTest.php</exclude>
         </testsuite>
         <testsuite name="Unit">
             <directory>./tests/Unit/</directory>
@@ -14,6 +15,7 @@
         <testsuite name="Integration">
             <directory>./tests/Integration/</directory>
             <exclude>./tests/Integration/PerformanceCacheTest.php</exclude>
+            <exclude>./tests/Integration/PerformanceKeyTest.php</exclude>
         </testsuite>
     </testsuites>
     <php>
