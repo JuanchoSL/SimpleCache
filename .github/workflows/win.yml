@@ -21,21 +21,15 @@ jobs:
           - "8.2"
           - "8.4"
           - "8.5"
-        os: [ubuntu-latest]
+        os: [windows-latest]
         dependencies: ["install", "update"]
-    env: 
+    env:
       extensions: yac, fileinfo, mbstring, apcu, memcached, redis
       key: extensions-php
 
     steps:
       - uses: actions/checkout@main
-      
-      - name: Set up Docker
-        uses: docker/setup-docker-action@v4
 
-      - name: Run Docker Compose
-        run: docker compose up -d
-      
       - name: Setup PHP
         id: php-env
         uses: shivammathur/setup-php@main
@@ -43,7 +37,7 @@ jobs:
           php-version: ${{ matrix.php-versions }}
           extensions: ${{ env.extensions }}
           ini-values: yac.enable_cli=On, apc.enabled=On, apc.enable_cli=On
-          
+
       - name: Cache extensions
         uses: actions/cache@main
         with:
@@ -68,8 +62,6 @@ jobs:
       - name: Run test suite
         env:
           TMPDIR: ${{ runner.temp }}
+          FULL_MODE: false
+          
         run: composer tests
-
-      - name: Tear Down Docker Compose
-        if: always()
-        run: docker compose down

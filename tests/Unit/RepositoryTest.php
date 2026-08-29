@@ -27,15 +27,13 @@ class RepositoryTest extends TestCase
 
     public static function providerLoginData(): array
     {
-        if (Credentials::GIT_MODE) {
+        if (!getenv('FULL_MODE')) {
             return [
                 'Process' => [new ProcessCache(Credentials::getHost(Engines::PROCESS))],
                 'File' => [new FileCache(Credentials::getHost(Engines::FILE))],
                 'Session' => [new SessionCache(Credentials::getHost(Engines::SESSION))],
                 'Yac' => [new YacCache(Credentials::getHost(Engines::YAC))],
                 'Apcu' => [new ApcuCache()],
-                'Redis' => [new RedisCache(Credentials::getHost(Engines::REDIS))],
-                'Memcached' => [new MemCached(Credentials::getHost(Engines::MEMCACHED))],
             ];
         }
         return [
