@@ -27,7 +27,7 @@ class RepositoryTest extends TestCase
 
     public static function providerLoginData(): array
     {
-        if (!getenv('FULL_MODE')) {
+        if (getenv('FULL_MODE') == 'false') {
             return [
                 'Process' => [new ProcessCache(Credentials::getHost(Engines::PROCESS))],
                 'File' => [new FileCache(Credentials::getHost(Engines::FILE))],

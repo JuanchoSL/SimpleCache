@@ -21,7 +21,7 @@ class SimpleCacheTest extends TestCase
 
     public static function providerLoginData(): array
     {
-        if (!getenv('FULL_MODE')) {
+        if (getenv('FULL_MODE') == 'false') {
             return [
                 'Process' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::PROCESS, Credentials::getHost(Engines::PROCESS)))],
                 'File' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::FILE, Credentials::getHost(Engines::FILE)))],
