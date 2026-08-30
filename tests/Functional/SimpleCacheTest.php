@@ -20,16 +20,21 @@ class SimpleCacheTest extends TestCase
 
     public static function providerLoginData(): array
     {
-        return [
+        $repos = [
             'Process' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::PROCESS, Credentials::getHost(Engines::PROCESS)))],
-            'Session' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::SESSION, Credentials::getHost(Engines::SESSION)))],
             'File' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::FILE, Credentials::getHost(Engines::FILE)))],
-            'Memcache' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::MEMCACHE, Credentials::getHost(Engines::MEMCACHE)))],
-            'Memcached' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::MEMCACHED, Credentials::getHost(Engines::MEMCACHED)))],
-            'Redis' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::REDIS, Credentials::getHost(Engines::REDIS)))],
+            'Session' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::SESSION, Credentials::getHost(Engines::SESSION)))],
             'Yac' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::YAC, Credentials::getHost(Engines::YAC)))],
-            'Apcu' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::APCU, ''))]
+            'Apcu' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::APCU, ''))],
         ];
+        if (PHP_OS_FAMILY != 'Windows') {
+            $repos = $repos + [
+                'Memcache' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::MEMCACHE, Credentials::getHost(Engines::MEMCACHE)))],
+                'Memcached' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::MEMCACHED, Credentials::getHost(Engines::MEMCACHED)))],
+                'Redis' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::REDIS, Credentials::getHost(Engines::REDIS)))],
+            ];
+        }
+        return $repos;
     }
 
     /**

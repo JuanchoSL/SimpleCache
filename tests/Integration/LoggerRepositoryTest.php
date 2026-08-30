@@ -33,16 +33,21 @@ class LoggerRepositoryTest extends TestCase
         static::$file_path = TMPDIR . DIRECTORY_SEPARATOR . 'error.log';
         $logger = new Logger((new FileRepository(static::$file_path))->setComposer(new TextComposer));
 
-        return [
+        $repos = [
             'Process' => [new ProcessCache(Credentials::getHost(Engines::PROCESS)), $logger, $debug],
             'Session' => [new SessionCache(Credentials::getHost(Engines::SESSION)), $logger, $debug],
             'File' => [new FileCache(Credentials::getHost(Engines::FILE)), $logger, $debug],
-            'Memcache' => [new MemCache(Credentials::getHost(Engines::MEMCACHE)), $logger, $debug],
-            'Memcached' => [new MemCached(Credentials::getHost(Engines::MEMCACHED)), $logger, $debug],
-            'Redis' => [new RedisCache(Credentials::getHost(Engines::REDIS)), $logger, $debug],
             'Yac' => [new YacCache(Credentials::getHost(Engines::YAC)), $logger, $debug],
             'Apcu' => [new ApcuCache(), $logger, $debug],
         ];
+        if (PHP_OS_FAMILY != 'Windows') {
+            $repos = $repos + [
+                'Memcache' => [new MemCache(Credentials::getHost(Engines::MEMCACHE)), $logger, $debug],
+                'Memcached' => [new MemCached(Credentials::getHost(Engines::MEMCACHED)), $logger, $debug],
+                'Redis' => [new RedisCache(Credentials::getHost(Engines::REDIS)), $logger, $debug],
+            ];
+        }
+        return $repos;
     }
 
     /**
