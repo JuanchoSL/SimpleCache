@@ -20,22 +20,12 @@ class RepositoryTest extends TestCase
 {
 
     private $value_plain = 'value';
-    private $value_array = ['value'];
 
     private $ttl = 5;
 
 
     public static function providerLoginData(): array
     {
-        if (getenv('FULL_MODE') == 'false') {
-            return [
-                'Process' => [new ProcessCache(Credentials::getHost(Engines::PROCESS))],
-                'File' => [new FileCache(Credentials::getHost(Engines::FILE))],
-                'Session' => [new SessionCache(Credentials::getHost(Engines::SESSION))],
-                'Yac' => [new YacCache(Credentials::getHost(Engines::YAC))],
-                'Apcu' => [new ApcuCache()],
-            ];
-        }
         return [
             'Process' => [new ProcessCache(Credentials::getHost(Engines::PROCESS))],
             'Session' => [new SessionCache(Credentials::getHost(Engines::SESSION))],
