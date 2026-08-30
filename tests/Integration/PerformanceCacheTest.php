@@ -1,16 +1,12 @@
 <?php
 
-namespace JuanchoSL\SimpleCache\Tests\Functional;
+namespace JuanchoSL\SimpleCache\Tests\Integration;
 
-use DateInterval;
-use JuanchoSL\Exceptions\PreconditionFailedException;
 use JuanchoSL\SimpleCache\Adapters\PsrSimpleCacheAdapter;
 use JuanchoSL\SimpleCache\Enums\Engines;
 use JuanchoSL\SimpleCache\Factories\EngineFactory;
 use JuanchoSL\SimpleCache\Tests\Common\Credentials;
-use Psr\SimpleCache\CacheInterface;
 use PHPUnit\Framework\TestCase;
-use stdClass;
 
 class PerformanceCacheTest extends TestCase
 {
@@ -19,25 +15,17 @@ class PerformanceCacheTest extends TestCase
     public function testPerformance()
     {
         $this->markTestSkipped();
-        if (/*Credentials::GIT_MODE*/ false) {
-            $origins = [
-                'Process' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::PROCESS, Credentials::getHost(Engines::PROCESS)))],
-                'File' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::FILE, Credentials::getHost(Engines::FILE)))],
-                'Yac' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::YAC, Credentials::getHost(Engines::YAC)))],
-                'Apcu' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::APCU, ''))]
-            ];
-        } else {
-            $origins = [
-                'Process' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::PROCESS, Credentials::getHost(Engines::PROCESS)))],
-                'Session' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::SESSION, Credentials::getHost(Engines::SESSION)))],
-                'File' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::FILE, Credentials::getHost(Engines::FILE)))],
-                'Memcache' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::MEMCACHE, Credentials::getHost(Engines::MEMCACHE)))],
-                'Memcached' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::MEMCACHED, Credentials::getHost(Engines::MEMCACHED)))],
-                'Redis' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::REDIS, Credentials::getHost(Engines::REDIS)))],
-                'Yac' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::YAC, Credentials::getHost(Engines::YAC)))],
-                'Apcu' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::APCU, ''))]
-            ];
-        }
+
+        $origins = [
+            'Process' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::PROCESS, Credentials::getHost(Engines::PROCESS)))],
+            'Session' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::SESSION, Credentials::getHost(Engines::SESSION)))],
+            'File' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::FILE, Credentials::getHost(Engines::FILE)))],
+            'Memcache' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::MEMCACHE, Credentials::getHost(Engines::MEMCACHE)))],
+            'Memcached' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::MEMCACHED, Credentials::getHost(Engines::MEMCACHED)))],
+            'Redis' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::REDIS, Credentials::getHost(Engines::REDIS)))],
+            'Yac' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::YAC, Credentials::getHost(Engines::YAC)))],
+            'Apcu' => [new PsrSimpleCacheAdapter(EngineFactory::getInstance(Engines::APCU, ''))]
+        ];
         $results = [];
         $limit = 1000;
         foreach ([10, 100, 1000] as $limit) {

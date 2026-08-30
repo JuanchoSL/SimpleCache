@@ -4,6 +4,7 @@ namespace JuanchoSL\SimpleCache\Repositories;
 
 use JuanchoSL\Exceptions\DestinationUnreachableException;
 use JuanchoSL\Exceptions\ServiceUnavailableException;
+use JuanchoSL\Validators\Types\Primitives\PrimitiveValidations;
 use JuanchoSL\Validators\Types\Strings\StringValidations;
 use Psr\Log\LogLevel;
 
@@ -42,74 +43,6 @@ class RedisCache extends AbstractCache
         }
     }
 
-    public function get(string $key, mixed $default = null): mixed
-    {
-        if ($this->server->exists($key)) {
-            $value = $this->server->get($key);
-            if ((new StringValidations)->is()->isNotEmpty()->isSerialized()->getResult($value)) {
-                $value = unserialize($value);
-            }
-            return $value;
-        }
-        $this->log("The key {key} does not exists", LogLevel::INFO, ['key' => $key, 'method' => __FUNCTION__]);
-        return (is_callable($default)) ? $default() : $default;
-    }
-
-    public function set(string $key, mixed $value, \DateInterval|null|int $ttl = null): bool
-    {
-        if (is_object($value) || is_array($value)) {
-            $value = serialize($value);
-        }
-        $result = $this->server->set($key, $value, $this->maxTtl($ttl));
-        $this->log("The key {key} is going to save", LogLevel::INFO, ['key' => $key, 'data' => $value, 'method' => __FUNCTION__, 'result' => intval($result)]);
-        return $result;
-    }
-
-    public function delete(string $key): bool
-    {
-        return $this->deleteMultiple([$key]);
-    }
-    
-    public function deleteMultiple(iterable $keys): bool
-    {
-        if (method_exists($this->server, 'del')) {
-            $result = $this->server->del($keys);
-        } elseif (method_exists($this->server, 'delete')) {
-            $result = $this->server->delete($keys);
-        } elseif (method_exists($this->server, 'unlink')) {
-            $result = $this->server->unlink($keys);
-        }
-        $result = (isset($result) && $result !== false);
-        $this->log("Some keys are going to be deleted", LogLevel::INFO, ['keys' => $keys, 'method' => __FUNCTION__, 'result' => intval($result)]);
-        return $result;
-    }
-
-    public function clear(): bool
-    {
-        return $this->server->flushDB();
-    }
-
-    public function replace(string $key, mixed $value): bool
-    {
-        if (is_object($value) || is_array($value)) {
-            $value = serialize($value);
-        }
-        $old = $this->server->getSet($key, $value);
-        $result = ($old !== $value);
-        $this->log("The key {key} is going to be replaced", LogLevel::INFO, ['key' => $key, 'data' => ['old' => $old, 'new' => $value], 'method' => __FUNCTION__, 'result' => intval($result)]);
-        return $result;
-    }
-
-    public function touch(string $key, \DateInterval|null|int $ttl): bool
-    {
-        if (method_exists($this->server, 'expire')) {
-            return $this->server->expire($key, $this->maxTtl($ttl));
-        } elseif (method_exists($this->server, 'setTimeOut')) {
-            return $this->server->setTimeOut($key, $this->maxTtl($ttl));
-        }
-        return false;
-    }
-
     public function getHost(): string
     {
         return $this->host . ":" . $this->port;
@@ -123,22 +56,97 @@ class RedisCache extends AbstractCache
         return $this->server->keys('*');
     }
 
+    public function clear(): bool
+    {
+        $result = ($this->server->flushDB() !== false);
+        $this->log("Cleared cache {prefix}", LogLevel::DEBUG, ['prefix' => $this->getHost(), 'method' => __FUNCTION__, 'result' => intval($result)]);
+        return $result;
+    }
+
+    public function has(string $key): bool
+    {
+        $this->checkKey($key);
+        return (new PrimitiveValidations())->isBoolEquivalent()->isTrue()->__invoke($this->server->exists($key));
+    }
+
+    public function get(string $key, mixed $default = null): mixed
+    {
+        $this->checkKey($key);
+        if ($this->has($key)) {
+            $value = $this->server->get($key);
+            if ((new StringValidations)->is()->isNotEmpty()->isSerialized()->getResult($value)) {
+                $value = unserialize($value);
+            }
+            return $value;
+        }
+        $this->log("The key {key} does not exists", LogLevel::INFO, ['key' => $key, 'method' => __FUNCTION__]);
+        return (is_callable($default)) ? $default() : $default;
+    }
+
+    public function set(string $key, mixed $value, \DateInterval|null|int $ttl = null): bool
+    {
+        $ttl = $this->maxTtl($ttl);
+        if ($ttl > 0) {
+            $this->checkKey($key);
+            if (is_object($value) || is_array($value)) {
+                $value = serialize($value);
+            }
+            $result = $this->server->set($key, $value, $ttl);
+            $this->log("The key {key} is going to save", LogLevel::INFO, ['key' => $key, 'data' => $value, 'method' => __FUNCTION__, 'result' => intval($result)]);
+            return $result;
+        } else {
+            return $this->delete($key);
+        }
+    }
+
+    public function delete(string $key): bool
+    {
+        $this->checkKey($key);
+        return $this->deleteMultiple([$key]);
+    }
+
+    public function replace(string $key, mixed $value): bool
+    {
+        $this->checkKey($key);
+        if ($this->has($key)) {
+            $old = $this->set($key, $value, $this->server->ttl($key));
+            $result = ($old !== $value);
+            $this->log("The key {key} is going to be replaced", LogLevel::INFO, ['key' => $key, 'data' => ['old' => $old, 'new' => $value], 'method' => __FUNCTION__, 'result' => intval($result)]);
+            return $result;
+        }
+        return false;
+    }
+
+    public function touch(string $key, \DateInterval|null|int $ttl): bool
+    {
+        $this->checkKey($key);
+        if (method_exists($this->server, 'expire')) {
+            return $this->server->expire($key, $this->maxTtl($ttl));
+        } elseif (method_exists($this->server, 'setTimeOut')) {
+            return $this->server->setTimeOut($key, $this->maxTtl($ttl));
+        } else {
+            return parent::touch($key, $ttl);
+        }
+    }
+
     public function increment(string $key, int|float $increment = 1, \DateInterval|null|int $ttl = null): int|float|bool
     {
+        $this->checkKey($key);
         return (is_float($increment)) ? $this->server->incrByFloat($key, $increment) : $this->server->incrBy($key, $increment);
     }
 
     public function decrement(string $key, int|float $decrement = 1, \DateInterval|null|int $ttl = null): int|float|bool
     {
-        $value = $this->get($key);
-        if (is_float($decrement) || is_float($value) || true) {
-            if (!$value) {
+        $this->checkKey($key);
+        //$value = $this->get($key);
+        if (/*is_float($decrement) || is_float($value) || */ true) {
+            if (!$this->has($key)) {
                 $decrement *= -1;
                 if ($this->set($key, $decrement, $ttl)) {
                     return $decrement;
                 }
             } else {
-                $new_value = $value - $decrement;
+                $new_value = $this->get($key) - $decrement;
                 if ($this->replace($key, $new_value)) {
                     return $new_value;
                 }
@@ -148,6 +156,29 @@ class RedisCache extends AbstractCache
         }
         return false;
     }
+
+    public function deleteMultiple(iterable $keys): bool
+    {
+        $this->checkKeys($keys);
+        if (method_exists($this->server, 'del')) {
+            $result = $this->server->del($keys);
+        } elseif (method_exists($this->server, 'delete')) {
+            $result = $this->server->delete($keys);
+        } elseif (method_exists($this->server, 'unlink')) {
+            $result = $this->server->unlink($keys);
+        }
+        if (is_numeric($result)) {
+            $n_keys = count($keys);
+            $fails = $n_keys - $result;
+            $this->log("Some keys are going to be deleted", LogLevel::DEBUG, ['keys' => $keys, 'method' => __FUNCTION__, 'result' => ['ok' => intval($result), 'ko' => $fails]]);
+            $result = ($result == $n_keys);
+        } else {
+            $result = (isset($result) && $result !== false);
+            $this->log("Some keys are going to be deleted", LogLevel::INFO, ['keys' => $keys, 'method' => __FUNCTION__, 'result' => intval($result)]);
+        }
+        return $result;
+    }
+
     public function __destruct()
     {
         $this->server->close();

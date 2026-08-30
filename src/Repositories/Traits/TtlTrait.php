@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace JuanchoSL\SimpleCache\Repositories;
+namespace JuanchoSL\SimpleCache\Repositories\Traits;
 
-trait CommonTrait
+trait TtlTrait
 {
     protected int $maxttl = 3600 * 24 * 30;
 
@@ -18,7 +18,7 @@ trait CommonTrait
     }
     protected function maxTtl(\DateInterval|null|int $ttl = null): int
     {
-        if (empty($ttl)) {
+        if (is_null($ttl)) {
             $ttl = $this->maxttl;
         } elseif ($ttl instanceof \DateInterval) {
             $ttl = (int) $ttl->format("%s");

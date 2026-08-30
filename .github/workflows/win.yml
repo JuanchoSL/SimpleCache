@@ -1,0 +1,67 @@
+name: PHP Composer and Tests for Win without Docker
+
+on:
+  push:
+    branches: ["develop"]
+  pull_request:
+    branches: ["develop"]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: PHP ${{ matrix.php-versions }} on ${{ matrix.os }} w/ ${{ matrix.dependencies }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        php-versions:
+          - "8.1"
+          - "8.2"
+          - "8.3"
+          - "8.4"
+          - "8.5"
+        os: [windows-latest]
+        dependencies: ["install", "update"]
+    env:
+      extensions: yac, fileinfo, mbstring, apcu, memcache, memcached, redis
+      key: extensions-php
+
+    steps:
+      - uses: actions/checkout@main
+
+      - name: Setup PHP
+        id: php-env
+        uses: shivammathur/setup-php@main
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: ${{ env.extensions }}
+          ini-values: yac.enable_cli=On, apc.enabled=On, apc.enable_cli=On
+
+      - name: Cache extensions
+        uses: actions/cache@main
+        with:
+          path: vendor
+          key: ${{ runner.os }}-${{ matrix.php-versions }}-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.php-versions }}-
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate --strict
+
+      - name: Install dependencies
+        run: composer ${{ matrix.dependencies }} --prefer-dist --no-progress --ignore-platform-reqs
+        env:
+          php-version: ${{ matrix.php-versions }}
+          extensions: ${{ env.extensions }}
+          ini-values: yac.enable_cli=On, apc.enabled=On, apc.enable_cli=On
+
+      # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
+      # Docs: https://getcomposer.org/doc/articles/scripts.md
+
+      - name: Run test suite
+        env:
+          TMPDIR: ${{ runner.temp }}
+          
+        run: composer tests

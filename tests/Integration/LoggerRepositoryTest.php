@@ -6,12 +6,14 @@ use JuanchoSL\Logger\Composers\TextComposer;
 use JuanchoSL\Logger\Logger;
 use JuanchoSL\Logger\Repositories\FileRepository;
 use JuanchoSL\SimpleCache\Enums\Engines;
+use JuanchoSL\SimpleCache\Repositories\ApcuCache;
 use JuanchoSL\SimpleCache\Repositories\FileCache;
 use JuanchoSL\SimpleCache\Repositories\MemCache;
 use JuanchoSL\SimpleCache\Repositories\MemCached;
 use JuanchoSL\SimpleCache\Repositories\ProcessCache;
 use JuanchoSL\SimpleCache\Repositories\RedisCache;
 use JuanchoSL\SimpleCache\Repositories\SessionCache;
+use JuanchoSL\SimpleCache\Repositories\YacCache;
 use JuanchoSL\SimpleCache\Tests\Common\Credentials;
 use PHPUnit\Framework\TestCase;
 
@@ -19,7 +21,6 @@ class LoggerRepositoryTest extends TestCase
 {
 
     private $value_plain = 'value';
-    private $value_array = ['value'];
 
     private $ttl = 5;
 
@@ -31,21 +32,22 @@ class LoggerRepositoryTest extends TestCase
 
         static::$file_path = TMPDIR . DIRECTORY_SEPARATOR . 'error.log';
         $logger = new Logger((new FileRepository(static::$file_path))->setComposer(new TextComposer));
-        if (Credentials::GIT_MODE) {
-            return [
-                'Process' => [new ProcessCache(Credentials::getHost(Engines::PROCESS)), $logger, $debug],
-                'File' => [new FileCache(TMPDIR . DIRECTORY_SEPARATOR . 'test_cache.cache'), $logger, $debug]
-            ];
-        }
 
-        return [
+        $repos = [
             'Process' => [new ProcessCache(Credentials::getHost(Engines::PROCESS)), $logger, $debug],
             'Session' => [new SessionCache(Credentials::getHost(Engines::SESSION)), $logger, $debug],
             'File' => [new FileCache(Credentials::getHost(Engines::FILE)), $logger, $debug],
-            'Memcache' => [new MemCache(Credentials::getHost(Engines::MEMCACHE)), $logger, $debug],
-            'Memcached' => [new MemCached(Credentials::getHost(Engines::MEMCACHED)), $logger, $debug],
-            'Redis' => [new RedisCache(Credentials::getHost(Engines::REDIS)), $logger, $debug],
+            'Yac' => [new YacCache(Credentials::getHost(Engines::YAC)), $logger, $debug],
+            'Apcu' => [new ApcuCache(), $logger, $debug],
         ];
+        if (PHP_OS_FAMILY != 'Windows') {
+            $repos = $repos + [
+                'Memcache' => [new MemCache(Credentials::getHost(Engines::MEMCACHE)), $logger, $debug],
+                'Memcached' => [new MemCached(Credentials::getHost(Engines::MEMCACHED)), $logger, $debug],
+                'Redis' => [new RedisCache(Credentials::getHost(Engines::REDIS)), $logger, $debug],
+            ];
+        }
+        return $repos;
     }
 
     /**
@@ -55,7 +57,7 @@ class LoggerRepositoryTest extends TestCase
     {
         $cache->setLogger($logger);
         $cache->setDebug($debug);
-        $name = str_replace('\\', '-', get_class($cache));
+        $name = md5(str_replace('\\', '_', get_class($cache)));
         $result = $cache->set("{$name}.key", $this->value_plain, $this->ttl);
         $this->assertTrue($result);
         $cache->clear();
@@ -68,7 +70,7 @@ class LoggerRepositoryTest extends TestCase
     {
         $cache->setLogger($logger);
         $cache->setDebug($debug);
-        $name = str_replace('\\', '-', get_class($cache));
+        $name = md5(str_replace('\\', '_', get_class($cache)));
         $result = $cache->set("{$name}.key", $this->value_plain, $this->ttl);
         $this->assertTrue($result);
         $read_ok = $cache->get("{$name}.key");
@@ -83,7 +85,7 @@ class LoggerRepositoryTest extends TestCase
     {
         $cache->setLogger($logger);
         $cache->setDebug($debug);
-        $name = str_replace('\\', '-', get_class($cache));
+        $name = md5(str_replace('\\', '_', get_class($cache)));
         $result = $cache->set("{$name}.key", $this->value_plain, $this->ttl);
         $this->assertTrue($result);
         sleep($this->ttl + 1);
@@ -99,7 +101,7 @@ class LoggerRepositoryTest extends TestCase
     {
         $cache->setLogger($logger);
         $cache->setDebug($debug);
-        $name = str_replace('\\', '-', get_class($cache));
+        $name = md5(str_replace('\\', '_', get_class($cache)));
         $result = $cache->set("{$name}.key", $this->value_plain, $this->ttl);
         $this->assertTrue($result);
         $read_ok = $cache->get("{$name}.key");
@@ -120,7 +122,7 @@ class LoggerRepositoryTest extends TestCase
     {
         $cache->setLogger($logger);
         $cache->setDebug($debug);
-        $name = str_replace('\\', '-', get_class($cache));
+        $name = md5(str_replace('\\', '_', get_class($cache)));
         $result = $cache->set("{$name}.key", $this->value_plain, $this->ttl);
         $this->assertTrue($result);
         $read_ok = $cache->get("{$name}.key");
@@ -139,7 +141,7 @@ class LoggerRepositoryTest extends TestCase
     {
         $cache->setLogger($logger);
         $cache->setDebug($debug);
-        $name = str_replace('\\', '-', get_class($cache));
+        $name = md5(str_replace('\\', '_', get_class($cache)));
         $result = $cache->set("{$name}.key", $this->value_plain, $this->ttl);
         $this->assertTrue($result);
         $read_ok = $cache->get("{$name}.key");
@@ -176,7 +178,7 @@ class LoggerRepositoryTest extends TestCase
     {
         $cache->setLogger($logger);
         $cache->setDebug($debug);
-        $name = str_replace('\\', '-', get_class($cache));
+        $name = md5(str_replace('\\', '_', get_class($cache)));
         $result = $cache->set("{$name}.array", ['key' => 'value'], $this->ttl);
         $this->assertTrue($result);
         $results = $cache->get("{$name}.array");
@@ -194,12 +196,12 @@ class LoggerRepositoryTest extends TestCase
     {
         $cache->setLogger($logger);
         $cache->setDebug($debug);
-        $name = str_replace('\\', '-', get_class($cache));
+        $name = md5(str_replace('\\', '_', get_class($cache)));
         $obj = new \stdClass;
         $obj->key = 'value';
-        $result = $cache->set("{$name}.object", $obj, $this->ttl);
+        $result = $cache->set("{$name}.obj", $obj, $this->ttl);
         $this->assertTrue($result);
-        $results = $cache->get("{$name}.object");
+        $results = $cache->get("{$name}.obj");
         $this->assertIsObject($results);
         $this->assertObjectHasProperty('key', $results);
         $this->assertEquals('value', $results->key);
@@ -213,12 +215,12 @@ class LoggerRepositoryTest extends TestCase
     {
         $cache->setLogger($logger);
         $cache->setDebug($debug);
-        $name = str_replace('\\', '-', get_class($cache));
-        $initial = $cache->increment("{$name}.key_increment", 1, $this->ttl);
+        $name = md5(str_replace('\\', '_', get_class($cache)));
+        $initial = $cache->increment("{$name}.ki", 1, $this->ttl);
         $this->assertEquals(1, $initial);
-        $initial = $cache->increment("{$name}.key_increment", 1, $this->ttl);
+        $initial = $cache->increment("{$name}.ki", 1, $this->ttl);
         $this->assertEquals(2, $initial);
-        $initial = $cache->increment("{$name}.key_increment", 2, $this->ttl);
+        $initial = $cache->increment("{$name}.ki", 2, $this->ttl);
         $this->assertEquals(4, $initial);
         $cache->clear();
     }
@@ -230,12 +232,12 @@ class LoggerRepositoryTest extends TestCase
     {
         $cache->setLogger($logger);
         $cache->setDebug($debug);
-        $name = str_replace('\\', '-', get_class($cache));
-        $initial = $cache->decrement("{$name}.key_decrement", 1, $this->ttl);
+        $name = md5(str_replace('\\', '_', get_class($cache)));
+        $initial = $cache->decrement("{$name}.kd", 1, $this->ttl);
         $this->assertEquals(-1, $initial);
-        $initial = $cache->decrement("{$name}.key_decrement", 1, $this->ttl);
+        $initial = $cache->decrement("{$name}.kd", 1, $this->ttl);
         $this->assertEquals(-2, $initial);
-        $initial = $cache->decrement("{$name}.key_decrement", 2, $this->ttl);
+        $initial = $cache->decrement("{$name}.kd", 2, $this->ttl);
         $this->assertEquals(-4, $initial);
         $cache->clear();
     }
@@ -247,12 +249,12 @@ class LoggerRepositoryTest extends TestCase
     {
         $cache->setLogger($logger);
         $cache->setDebug($debug);
-        $name = str_replace('\\', '-', get_class($cache));
-        $initial = $cache->increment("{$name}.key_increment_float", 1.5, $this->ttl);
+        $name = md5(str_replace('\\', '_', get_class($cache)));
+        $initial = $cache->increment("{$name}.kif", 1.5, $this->ttl);
         $this->assertEquals(1.5, $initial);
-        $initial = $cache->increment("{$name}.key_increment_float", 1.5, $this->ttl);
+        $initial = $cache->increment("{$name}.kif", 1.5, $this->ttl);
         $this->assertEquals(3, $initial);
-        $initial = $cache->increment("{$name}.key_increment_float", 2, $this->ttl);
+        $initial = $cache->increment("{$name}.kif", 2, $this->ttl);
         $this->assertEquals(5, $initial);
         $cache->clear();
     }
@@ -264,14 +266,14 @@ class LoggerRepositoryTest extends TestCase
     {
         $cache->setLogger($logger);
         $cache->setDebug($debug);
-        $name = str_replace('\\', '-', get_class($cache));
-        $initial = $cache->decrement("{$name}.key_decrement_float", 1.5, $this->ttl);
+        $name = md5(str_replace('\\', '_', get_class($cache)));
+        $initial = $cache->decrement("{$name}.kdf", 1.5, $this->ttl);
         $this->assertEquals(-1.5, $initial);
-        $initial = $cache->decrement("{$name}.key_decrement_float", 1.5, $this->ttl);
+        $initial = $cache->decrement("{$name}.kdf", 1.5, $this->ttl);
         $this->assertEquals(-3, $initial);
-        $initial = $cache->decrement("{$name}.key_decrement_float", 1.5, $this->ttl);
+        $initial = $cache->decrement("{$name}.kdf", 1.5, $this->ttl);
         $this->assertEquals(-4.5, $initial);
-        $initial = $cache->decrement("{$name}.key_decrement_float", 1, $this->ttl);
+        $initial = $cache->decrement("{$name}.kdf", 1, $this->ttl);
         $this->assertEquals(-5.5, $initial);
         $cache->clear();
     }
@@ -283,7 +285,7 @@ class LoggerRepositoryTest extends TestCase
     {
         $cache->setLogger($logger);
         $cache->setDebug($debug);
-        $name = str_replace('\\', '-', get_class($cache));
+        $name = md5(str_replace('\\', '_', get_class($cache)));
         $this->assertTrue($cache->setMultiple(["a" => "aa", "b" => "bb", "c" => "cc"], \DateInterval::createFromDateString("10 seconds")));
     }
 
@@ -294,7 +296,7 @@ class LoggerRepositoryTest extends TestCase
     {
         $cache->setLogger($logger);
         $cache->setDebug($debug);
-        $name = str_replace('\\', '-', get_class($cache));
+        $name = md5(str_replace('\\', '_', get_class($cache)));
         $this->testSetMultiple($cache, $logger, $debug);
         $keys = ["a", "b", "c"];
         $results = $cache->getMultiple($keys);
@@ -311,7 +313,7 @@ class LoggerRepositoryTest extends TestCase
     {
         $cache->setLogger($logger);
         $cache->setDebug($debug);
-        $name = str_replace('\\', '-', get_class($cache));
+        $name = md5(str_replace('\\', '_', get_class($cache)));
         $this->testSetMultiple($cache, $logger, $debug);
         $keys = ["a", "b", "c"];
         $this->assertTrue($cache->deleteMultiple($keys));

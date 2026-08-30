@@ -29,63 +29,9 @@ class SessionCache extends AbstractCache
         }
     }
 
-    public function get(string $key, mixed $default = null): mixed
+    public function getHost(): string
     {
-        if (array_key_exists($key, $_SESSION[$this->host_name])) {
-            $value = $_SESSION[$this->host_name][$key];
-            if (isset($value['ttl'], $value['value']) && $value['ttl'] > time()) {
-                return $value['value'];
-            }
-            $this->log("The key {key} is not valid", LogLevel::INFO, ['key' => $key, 'data' => $value, 'method' => __FUNCTION__]);
-            $this->delete($key);
-        } else {
-            $this->log("The key {key} does not exists", LogLevel::INFO, ['key' => $key, 'method' => __FUNCTION__]);
-        }
-        return (is_callable($default)) ? $default() : $default;
-    }
-
-    public function set(string $key, mixed $value, \DateInterval|null|int $ttl = null): bool
-    {
-        $_SESSION[$this->host_name][$key] = array('ttl' => time() + $this->maxTtl($ttl), 'value' => $value);
-        $result = (isset($_SESSION[$this->host_name][$key]));
-        $this->log("The key {key} is going to save", LogLevel::INFO, ['key' => $key, 'data' => $value, 'method' => __FUNCTION__, 'result' => intval($result)]);
-        return $result;
-    }
-
-    public function delete(string $key): bool
-    {
-        if (isset($_SESSION[$this->host_name]) && array_key_exists($key, $_SESSION[$this->host_name])) {
-            $this->log("The key {key} is going to delete", LogLevel::INFO, ['key' => $key, 'method' => __FUNCTION__]);
-            unset($_SESSION[$this->host_name][$key]);
-            return true;
-        }
-        $this->log("The key {key} does not exists", LogLevel::INFO, ['key' => $key, 'method' => __FUNCTION__]);
-        return false;
-    }
-
-    public function clear(): bool
-    {
-        $_SESSION[$this->host_name] = [];
-        return empty($_SESSION[$this->host_name]);
-    }
-
-    public function replace(string $key, mixed $value): bool
-    {
-        if (array_key_exists($key, $_SESSION[$this->host_name])) {
-            $this->log("The key {key} is going to be replaced", LogLevel::INFO, ['key' => $key, 'data' => ['old' => $_SESSION[$this->host_name][$key]['value'], 'new' => $value], 'method' => __FUNCTION__]);
-            $_SESSION[$this->host_name][$key]['value'] = $value;
-            return true;
-        }
-        $this->log("The key {key} does not exists", LogLevel::INFO, ['key' => $key, 'method' => __FUNCTION__]);
-        return false;
-    }
-
-    public function touch(string $key, \DateInterval|null|int $ttl): bool
-    {
-        if (($value = $this->get($key)) !== null) {
-            return $this->set($key, $value, $ttl);
-        }
-        return false;
+        return $this->host_name;
     }
 
     /**
@@ -95,14 +41,73 @@ class SessionCache extends AbstractCache
     {
         return array_keys($_SESSION[$this->host_name]);
     }
-
-    public function getHost(): string
+    public function clear(): bool
     {
-        return $this->host_name;
+        $_SESSION[$this->host_name] = [];
+        $result = empty($_SESSION[$this->host_name]);
+        $this->log("Cleared cache {prefix}", LogLevel::DEBUG, ['prefix' => $this->getHost(), 'method' => __FUNCTION__, 'result' => intval($result)]);
+        return $result;
+    }
+
+    public function has(string $key): bool
+    {
+        $this->checkKey($key);
+        return (array_key_exists($key, $_SESSION[$this->host_name]) && $_SESSION[$this->host_name][$key]['ttl'] > time());
+    }
+
+    public function get(string $key, mixed $default = null): mixed
+    {
+        $this->checkKey($key);
+        if ($this->has($key)) {
+            return $_SESSION[$this->host_name][$key]['value'];
+        } else {
+            $this->delete($key);
+            $this->log("The key {key} does not exists", LogLevel::INFO, ['key' => $key, 'method' => __FUNCTION__]);
+        }
+        return (is_callable($default)) ? $default() : $default;
+    }
+
+    public function set(string $key, mixed $value, \DateInterval|null|int $ttl = null): bool
+    {
+        $ttl = $this->maxTtl($ttl);
+        if ($ttl > 0) {
+            $this->checkKey($key);
+            $_SESSION[$this->host_name][$key] = array('ttl' => time() + $ttl, 'value' => $value);
+            $result = (isset($_SESSION[$this->host_name][$key]));
+            $this->log("The key {key} is going to save", LogLevel::INFO, ['key' => $key, 'data' => $value, 'method' => __FUNCTION__, 'result' => intval($result)]);
+            return $result;
+        } else {
+            return $this->delete($key);
+        }
+    }
+
+    public function delete(string $key): bool
+    {
+        $this->checkKey($key);
+        if ($this->has($key)) {
+            $this->log("The key {key} is going to delete", LogLevel::INFO, ['key' => $key, 'method' => __FUNCTION__]);
+            unset($_SESSION[$this->host_name][$key]);
+            return true;
+        }
+        $this->log("The key {key} does not exists", LogLevel::INFO, ['key' => $key, 'method' => __FUNCTION__]);
+        return false;
+    }
+
+    public function replace(string $key, mixed $value): bool
+    {
+        $this->checkKey($key);
+        if ($this->has($key)) {
+            $this->log("The key {key} is going to be replaced", LogLevel::INFO, ['key' => $key, 'data' => ['old' => $_SESSION[$this->host_name][$key]['value'], 'new' => $value], 'method' => __FUNCTION__]);
+            $_SESSION[$this->host_name][$key]['value'] = $value;
+            return true;
+        }
+        $this->log("The key {key} does not exists", LogLevel::INFO, ['key' => $key, 'method' => __FUNCTION__]);
+        return false;
     }
 
     public function deleteMultiple(iterable $keys): bool
     {
+        $this->checkKeys($keys);
         $result = array_diff_key($_SESSION[$this->host_name], array_fill_keys($keys, null));
         $counter = count($_SESSION[$this->host_name]) - count($result);
         $this->log("Some keys are going to be deleted", LogLevel::INFO, ['keys' => $keys, 'method' => __FUNCTION__, 'result' => $counter]);

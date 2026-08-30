@@ -41,6 +41,7 @@
     "require-dev": {
         "juanchosl/logger": "1.1.*",
         "phpunit/phpunit": "9.6.*",
+        "doctrine/instantiator": "^1.5",
         "phpstan/phpstan": "1.12.*"
     },
     "autoload": {

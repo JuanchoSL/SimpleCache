@@ -1,5 +1,26 @@
 # Change Log - Simple Cache
 
+## [1.0.8] - 2026-08-30
+
+### Added
+
+- Compatibility with YAC cache
+- Compatibility with APCU cache
+- Check over multi php versions/platforms with GitHub actions
+- Debug traces for clear calls, in order to log when a full delete has been executed and a log is present
+
+### Changed
+
+- Unify code for multi functions on systems where it is not available natively
+- Unify code for touch function on systems where it is not available natively
+- Unify code for replace function on systems where it is not available natively
+- Verify than a key exists before replace or touch, or return false
+
+### Fixed
+
+- Check keys values before use it, as is indicated into [PSR-16](https://www.php-fig.org/psr/psr-16/#12-definitions)
+- Check invalid chars when trying to add, for use into keys [PSR-16](https://www.php-fig.org/psr/psr-16/#12-definitions)
+
 ## [1.0.7] - 2026-07-30
 
 ### Added

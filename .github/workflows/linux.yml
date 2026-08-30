@@ -1,4 +1,4 @@
-name: PHP Composer and Tests
+name: PHP Composer and Tests for Linux using Docker
 
 on:
   push:
@@ -21,15 +21,21 @@ jobs:
           - "8.2"
           - "8.4"
           - "8.5"
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
         dependencies: ["install", "update"]
     env: 
-      extensions: yac, fileinfo, mbstring, apcu
+      extensions: yac, fileinfo, mbstring, apcu, memcache, memcached, redis
       key: extensions-php
 
     steps:
       - uses: actions/checkout@main
+      
+      - name: Set up Docker
+        uses: docker/setup-docker-action@master
 
+      - name: Run Docker Compose
+        run: docker compose up -d
+      
       - name: Setup PHP
         id: php-env
         uses: shivammathur/setup-php@main
@@ -63,3 +69,7 @@ jobs:
         env:
           TMPDIR: ${{ runner.temp }}
         run: composer tests
+
+      - name: Tear Down Docker Compose
+        if: always()
+        run: docker compose down
